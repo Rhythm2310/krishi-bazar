@@ -1,37 +1,25 @@
 ecosystem,package,version,role,status,checked_on,source,replaces,notes
-runtime,bun,1,package manager + dev/test/build runtime + prod runtime family,stable,2026-10-22,https://endoflife.date/bun + https://github.com/oven-sh/bun/releases,,Cycle 1 (1.x line; eol false). Exact dev/CI binary pinned 1.4.3 (oven-sh/setup-bun input + AGENTS.md). Vercel prod: bunVersion 1.4.x (beta) per ADR-0001; nodejs24.x one-line fallback.
-npm,svelte,5.57.2,UI framework,stable,2026-10-22,https://registry.npmjs.org/svelte,,
-npm,@sveltejs/kit,3.0.1,app framework,stable,2026-10-22,https://registry.npmjs.org/@sveltejs/kit,,3.1.0 exists but is <14d old; peer vite ^8.0.12 satisfied by 8.3.4
-npm,@sveltejs/adapter-vercel,7.0.0,Vercel deployment adapter,stable,2026-10-22,https://registry.npmjs.org/@sveltejs/adapter-vercel,,configure runtime bun1.x; regions bom1
-npm,@sveltejs/vite-plugin-svelte,7.3.1,svelte compiler for vite,stable,2026-10-22,https://registry.npmjs.org/@sveltejs/vite-plugin-svelte,,peer svelte ^5.46.4 ok
-npm,vite,8.3.4,bundler/dev server,stable,2026-10-22,https://registry.npmjs.org/vite,,8.3.5 is <14d old
-npm,typescript,6.0.3,language + strict types,stable,2026-10-22,https://registry.npmjs.org/typescript,,7.x exists but violates typescript-eslint peer <6.1.0 and kit peer ^6
-npm,svelte-check,4.7.6,svelte+ts diagnostics,stable,2026-10-22,https://registry.npmjs.org/svelte-check,,
-npm,drizzle-orm,0.45.4,ORM (neon-http + pglite drivers),stable,2026-10-22,https://registry.npmjs.org/drizzle-orm,,
-npm,drizzle-kit,0.31.11,migrations generator,stable,2026-10-22,https://registry.npmjs.org/drizzle-kit,,
-npm,@neondatabase/serverless,1.2.0,Neon Postgres serverless driver (prod),stable,2026-10-22,https://registry.npmjs.org/@neondatabase/serverless,,Neon Free plan: $0 1GB/project 100 CU-h/mo scale-to-zero (verified neon.com/docs/introduction/plans)
-npm,@electric-sql/pglite,0.5.8,embedded WASM Postgres (dev+test),stable,2026-10-22,https://registry.npmjs.org/@electric-sql/pglite,,officially supports Bun (pglite.dev/docs/about); Apache-2.0
-npm,zod,4.6.5,shared client/server validation,stable,2026-10-22,https://registry.npmjs.org/zod,,
-npm,@vercel/blob,2.8.1,photo storage + handleUpload client flow,stable,2026-10-22,https://registry.npmjs.org/@vercel/blob,,Hobby Blob quota: VERIFY in Vercel dashboard before launch
-npm,@lucide/svelte,1.53.0,icon components (inline SVG),stable,2026-10-22,https://registry.npmjs.org/@lucide/svelte,lucide-svelte,lucide-svelte is DEPRECATED upstream; successor pinned
-npm,@fontsource/hind-siliguri,5.3.0,self-hosted Bangla font,stable,2026-10-22,https://registry.npmjs.org/@fontsource/hind-siliguri,,OFL-1.1
-npm,@fontsource-variable/inter,5.3.0,self-hosted English font,stable,2026-10-22,https://registry.npmjs.org/@fontsource-variable/inter,,OFL-1.1
-npm,vitest,5.0.3,unit+integration runner (S1/S2),stable,2026-10-22,https://registry.npmjs.org/vitest,,peer vite ^8 ok
-npm,@vitest/coverage-v8,5.0.3,coverage gates,stable,2026-10-22,https://registry.npmjs.org/@vitest/coverage-v8,,
-npm,fast-check,4.10.2,property-based tests (S1),stable,2026-10-22,https://registry.npmjs.org/fast-check,,
-npm,@playwright/test,1.64.0,E2E runner (S3),stable,2026-10-22,https://registry.npmjs.org/@playwright/test,,
-npm,@axe-core/playwright,4.13.0,accessibility assertions in E2E,stable,2026-10-22,https://registry.npmjs.org/@axe-core/playwright,,4.14.x exists but only <14d or sha-snapshot builds
-npm,eslint,10.12.0,linter,stable,2026-10-22,https://registry.npmjs.org/eslint,,
-npm,eslint-plugin-svelte,3.23.0,svelte lint rules,stable,2026-10-22,https://registry.npmjs.org/eslint-plugin-svelte,,peer eslint ^10 ok
-npm,typescript-eslint,8.71.1,ts lint rules,stable,2026-10-22,https://registry.npmjs.org/typescript-eslint,,peer ts <6.1.0 satisfied by 6.0.3
-npm,@eslint/js,10.0.1,flat config base,stable,2026-10-22,https://registry.npmjs.org/@eslint/js,,
-npm,eslint-config-prettier,10.1.8,disable style rules conflicting with prettier,stable,2026-10-22,https://registry.npmjs.org/eslint-config-prettier,,finished tiny lib; 461d since release is acceptable
-npm,globals,17.13.0,eslint env globals,stable,2026-10-22,https://registry.npmjs.org/globals,,
-npm,prettier,3.9.9,formatter,stable,2026-10-22,https://registry.npmjs.org/prettier,,
-npm,prettier-plugin-svelte,4.1.1,svelte formatter,stable,2026-10-22,https://registry.npmjs.org/prettier-plugin-svelte,,
-npm,@commitlint/cli,21.2.3,conventional commit lint in CI,stable,2026-10-22,https://registry.npmjs.org/@commitlint/cli,,run directly (no third-party GH action)
-npm,@commitlint/config-conventional,21.2.3,commitlint ruleset,stable,2026-10-22,https://registry.npmjs.org/@commitlint/config-conventional,,
-npm,lighthouse,13.5.0,perf/a11y/bp/seo budgets in CI,stable,2026-10-22,https://registry.npmjs.org/lighthouse,@lhci/cli,@lhci/cli stale (484d no release); lighthouse CLI + threshold script instead
-actions,actions/checkout,v7.0.1,CI checkout,stable,2026-10-22,https://github.com/actions/checkout/releases,,exact release tag pinned
-actions,oven-sh/setup-bun,v2.2.0,CI bun toolchain,stable,2026-10-22,https://github.com/oven-sh/setup-bun/releases,,bun-version 1.4.3
-actions,actions/upload-artifact,v7.0.2,CI artifacts (playwright reports coverage),stable,2026-10-22,https://github.com/actions/upload-artifact/releases,,
+runtime,nodejs,24,runtime,stable,2026-10-23,https://endoflife.date/nodejs,,LTS since 2025-10-28; EOL 2028-04-30. CI and setup script pin the full version 24.22.1. Node 26 becomes LTS on 2026-10-28: revisit at the next REPLAN. Satisfies @sveltejs/kit engines >=22.17.
+runtime,python,3.12,ci-guards,stable,2026-10-23,https://endoflife.date/python,,Runs the .jules/tools guards in CI. Scripts need >=3.9; EOL 2028-04.
+npm,@sveltejs/kit,3.0.1,framework,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/kit,,Peers satisfied by this ledger: vite ^8.0.12 / svelte ^5.57.1 / typescript ^6 / @sveltejs/vite-plugin-svelte ^7. Latest 3.1.0 skipped: only 9 days old (2-week rule).
+npm,svelte,5.57.2,framework,stable,2026-10-23,https://registry.npmjs.org/svelte,,Svelte 5 runes mode. 17 days old.
+npm,@sveltejs/adapter-vercel,7.0.0,build,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/adapter-vercel,,Deploys to Vercel (Node serverless/static output). Latest 7.0.1 skipped: 9 days old.
+npm,@sveltejs/vite-plugin-svelte,7.3.1,build,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/vite-plugin-svelte,,Peers vite ^8 and svelte ^5.46.4 satisfied. 30 days old.
+npm,vite,8.3.4,build,stable,2026-10-23,https://registry.npmjs.org/vite,,Latest 8.3.5 skipped: 2 days old.
+npm,typescript,6.0.3,tooling,stable,2026-10-23,https://registry.npmjs.org/typescript,,Satisfies kit peer ^6.0.0 and typescript-eslint peer <6.1.0 simultaneously. 190 days old.
+npm,svelte-check,4.7.6,tooling,stable,2026-10-23,https://registry.npmjs.org/svelte-check,,Type-checks .svelte files. Latest 4.7.7 skipped: 7 days old.
+npm,vitest,5.0.3,test,stable,2026-10-23,https://registry.npmjs.org/vitest,,S1 seam runner (node environment). Peer vite ^8 satisfied. Latest 5.0.5 skipped: 8 days old.
+npm,@playwright/test,1.64.0,test,stable,2026-10-23,https://registry.npmjs.org/@playwright/test,,S2 seam runner; Chromium only. Latest 1.64.1 skipped: 9 days old.
+npm,eslint,10.12.0,lint,stable,2026-10-23,https://registry.npmjs.org/eslint,,Flat config. Latest 10.13.0 skipped: 7 days old.
+npm,@eslint/js,10.0.1,lint,stable,2026-10-23,https://registry.npmjs.org/@eslint/js,,Matches the eslint 10 major.
+npm,typescript-eslint,8.71.1,lint,stable,2026-10-23,https://registry.npmjs.org/typescript-eslint,,Peers eslint ^10 and typescript <6.1.0 satisfied. Latest 8.72.0 skipped: 4 days old.
+npm,eslint-plugin-svelte,3.23.1,lint,stable,2026-10-23,https://registry.npmjs.org/eslint-plugin-svelte,,Peers eslint ^10 and svelte ^5 satisfied. 14 days old.
+npm,eslint-config-prettier,10.1.8,lint,stable,2026-10-23,https://registry.npmjs.org/eslint-config-prettier,,Disables formatting rules that fight Prettier. Loaded last.
+npm,prettier,3.9.9,format,stable,2026-10-23,https://registry.npmjs.org/prettier,,Latest 3.9.10 skipped: 13 days old (2-week rule).
+npm,prettier-plugin-svelte,4.1.1,format,stable,2026-10-23,https://registry.npmjs.org/prettier-plugin-svelte,,Peers prettier ^3 and svelte ^5 satisfied.
+npm,globals,17.13.0,lint,stable,2026-10-23,https://registry.npmjs.org/globals,,Browser and node globals for the flat config.
+npm,tslib,2.8.1,runtime-helper,stable,2026-10-23,https://registry.npmjs.org/tslib,,TS helper runtime expected by the Svelte toolchain.
+npm,@types/node,24.19.2,types,stable,2026-10-23,https://registry.npmjs.org/@types/node,,Matches the Node 24 runtime line.
+actions,actions/checkout,v7,ci,stable,2026-10-23,https://github.com/actions/checkout/releases,,Latest release v7.0.1; pinned to the stable major tag v7.
+actions,actions/setup-node,v7,ci,stable,2026-10-23,https://github.com/actions/setup-node/releases,,Latest release v7.1.0; stable major tag v7.
+actions,actions/setup-python,v7,ci,stable,2026-10-23,https://github.com/actions/setup-python/releases,,Latest release v7.1.0; stable major tag v7. Used by the guard jobs.

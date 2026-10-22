@@ -1,78 +1,105 @@
-# Krishi Bazar glossary
+# UIU Calculator glossary
 
 Language only. No implementation detail, specs or scratch notes. One word per concept; the "Avoid" list names the synonyms nobody uses.
 
 ## Terms
-**Farmer (কৃষক)**: a producer who registers with a Bangladeshi mobile number and a password, and lists harvests for sale.
-_Avoid_: user, vendor, seller, merchant
 
-**Buyer (ক্রেতা)**: a guest who orders from a Listing; Buyers never hold accounts in this product.
-_Avoid_: customer, client, user
+**Student**: the person using the app; a UIU undergraduate planning or reviewing a Term.
+_Avoid_: user, client, person
 
-**Listing (পণ্য)**: one Farmer's offer of one harvest: category, name, unit, price per unit, stock, grade, organic claim, harvest date, optional photo.
-_Avoid_: item, product page, crop post
+**Program**: one of the 12 official UIU undergraduate programs in the fee table (for example BSCSE or B.Pharm), carrying its PerCreditFee, total Credit requirement and TermSystem.
+_Avoid_: department, faculty, major, course-of-study
 
-**Order (অর্ডার)**: a Buyer's request for a quantity of one Listing at a total price, moving through a fixed lifecycle from new to delivered or cancelled.
-_Avoid_: booking, sale, transaction
+**Term**: one teaching period at UIU; either a Trimester or a Semester depending on the Program.
+_Avoid_: semester (alone), trimester (alone), session, quarter
 
-**Stock (মজুত)**: the remaining quantity of a Listing; reserved the moment an Order is created and released if the Order ends cancelled.
-_Avoid_: inventory, quantity (quantity is the amount inside one Order)
+**Trimester**: the Term system used by every Program except B.Pharm; 12 Trimesters per degree; TermFee Tk 6,500.
 
-**Unit (একক)**: the measure a Listing is sold in — কেজি (kg), পিচ (piece), মণ (maund), হালি (4), ডজন (12), আঁটি (bundle), ঝুড়ি (basket), বস্তা (sack), লিটার (litre).
-_Avoid_: scale, measure
+**Semester**: the Term system used by B.Pharm only; 8 Semesters per degree; TermFee Tk 9,750.
 
-**Paisa (পয়সা)**: the integer minor unit of Bangladeshi taka (১ টাকা = ১০০ পয়সা); every stored money amount is an integer number of Paisa.
-_Avoid_: amount, float, decimal taka
+**Course**: one subject a Student plans or completed in a Term, identified by its CourseCode, with Credits and a LetterGrade.
+_Avoid_: subject, class, module, paper
 
-**Fair price (ন্যায্য দাম)**: the advisory recommended price range for a Listing produced by the pricing module; the Farmer's manual price always wins.
-_Avoid_: market price, suggested MRP
+**CourseCode**: the official UIU identifier of a Course (for example `CSE 1101`); the key that identifies a Course across Terms for Retake replacement.
+_Avoid_: course name (that is the title), course id
 
-**Grade (গ্রেড)**: the codified quality class of a Listing — প্রিমিয়াম (Extra Class), গ্রেড-১ (Class I) or গ্রেড-২ (Class II).
-_Avoid_: quality (quality is the everyday word; Grade is the field), tier, class
+**Credit**: the weight of a Course; multiples of 0.5, range 0.5 to 12 per Course.
+_Avoid_: credit hour, unit, point (point is the GradePoint)
 
-**Organic claim (জৈব ঘোষণা)**: the Farmer's self-declared, uncertified statement that a Listing was grown without chemicals.
-_Avoid_: certified organic, bio
+**LetterGrade**: one of the 11 official UIU grades: A, A-, B+, B, B-, C+, C, C-, D+, D, F.
+_Avoid_: grade letter, mark, score
 
-**Freshness (তাজাত্ব)**: the state derived from a Listing's harvest date and its category's real-world shelf-life window; shown as a badge and a best-before date.
-_Avoid_: age, newness
+**GradePoint**: the numeric value of a LetterGrade (A = 4.00 down to D = 1.00; F = 0.00).
+_Avoid_: point value, grade value
 
-**Delivery speed (ডেলিভারি গতি)**: express (১ দিন) or standard (৩ দিন), each adding a per-kilogram surcharge to an Order.
-_Avoid_: shipping tier, courier option
+**TermGpa**: the Credit-weighted average GradePoint of the Courses in one Term; F Courses count in the denominator and earn no Credits.
+_Avoid_: GPA (alone), semester GPA, SGPA
 
-**Comment (মন্তব্য)**: a guest remark on a Listing, rate-limited per IP; a Comment whose author phone matches a non-cancelled Order on that Listing carries the Verified buyer badge.
-_Avoid_: review, feedback, rating
+**Cgpa**: cumulative GradePoint average: the Credit-weighted average GradePoint across all SavedTerms plus the Planner, after Retake replacement. Degree requirement: 2.00.
+_Avoid_: GPA (alone), cumulative GPA, average
 
-**Verified buyer (যাচাইকৃত ক্রেতা)**: the badge on a Comment whose author phone matches a non-cancelled Order for the same Listing.
-_Avoid_: confirmed user
+**EarnedCredits**: Credits from Courses graded D or higher; an F earns nothing and the Course must be retaken.
+_Avoid_: completed credits, passed hours
 
-**Session (সেশন)**: one logged-in Farmer's server-side session, represented by an httpOnly cookie.
-_Avoid_: login token, auth cookie
+**Retake**: re-registering for a Course after an F or for grade improvement; the new attempt replaces the earlier attempt with the same CourseCode in Cgpa, and its Credits get the RetakeWaiver the first time.
+_Avoid_: repeat, retake-course, improvement (alone)
 
-**Locale**: the UI language, Bangla (`bn`, default) or English (`en`), switchable at any time without reload.
-_Avoid_: language setting, i18n mode
+**RetakeWaiver**: the 50% reduction of the tuition charge on Retake Credits (first retake of a Course only, per official policy).
 
-**Category (ধরন)**: the fixed Bangladesh-specific kind a Listing belongs to (e.g. ইলিশ, আম, পালং শাক); every Category belongs to exactly one Group (e.g. মাছ, ফল, শাক).
-_Avoid_: type, group (a Group contains Categories), product kind
+**SavedTerm**: a Term the Student finished planning and stored in the browser; has a label and its Courses. SavedTerms feed the Cgpa.
+_Avoid_: history entry, archive
 
-**Season (মৌসুম)**: the months of the year a Category is naturally harvested in Bangladesh; drives the Fair price multipliers and the seed data.
-_Avoid_: weather, month
+**Planner**: the Term currently being edited on the page; it counts toward Cgpa and fee estimates but is not a SavedTerm until saved.
 
-**District (জেলা)**: one of the 64 administrative districts of Bangladesh; a Farmer's location is District plus free-text village/upazila.
-_Avoid_: region, location (location is district + village together), area
+**FeeBreakdown**: the itemized money due for one Term: tuition (gross, waivers, net), TermFee, LabFee, and on a FirstTerm the AdmissionFee and CautionMoney, plus the total.
+_Avoid_: bill, invoice, cost summary
 
-**Expired order (মেয়াদোত্তীর্ণ অর্ডার)**: an order still নতুন more than 24 hours after creation; it becomes বাতিল and its reserved Stock is released.
-_Avoid_: timeout, stale order
+**FeeLine**: one row of a FeeBreakdown with a label, an amount in Taka (waivers are negative) and a kind.
+
+**PerCreditFee**: the tuition charge per Credit of a Program: Tk 6,500, or Tk 5,525 for BA English and BSSMSJ (15% discount).
+_Avoid_: credit rate, tuition rate
+
+**TermFee**: the fixed registration charge per Term: Tk 6,500 per Trimester; Tk 9,750 per Semester (B.Pharm). This is what students colloquially call the "registration fee".
+_Avoid_: registration fee (ambiguous with AdmissionFee), semester fee (alone)
+
+**LabFee**: the per-Term laboratory charge of specific Programs: BSBGE Tk 2,000 per Trimester; B.Pharm Tk 5,000 per Semester; Tk 0 for every other Program.
+
+**AdmissionFee**: the one-time Tk 20,000 non-refundable down payment made at admission; on a FirstTerm it counts as that Term's PreRegistrationPayment.
+_Avoid_: admission cost, registration fee
+
+**CautionMoney**: the one-time Tk 2,000 refundable ID-card deposit paid at admission; shown separately as refundable in the FeeBreakdown.
+_Avoid_: deposit, security
+
+**FirstTerm**: the Student's very first Term at UIU, when AdmissionFee and CautionMoney apply.
+
+**WaiverTier**: the scholarship/waiver percentage a Student selects: 0, 25 or 50; it reduces tuition on non-Retake Credits only. Computed values are estimates: official conditions apply.
+_Avoid_: scholarship (alone), discount
+
+**PaymentSchedule**: how one Term's dues are paid: the PreRegistrationPayment of Tk 20,000, then the remaining amount in Installments (Trimester: 40/30/30; Semester: 4 × 25%).
+_Avoid_: installment plan (that is part of it), payment plan
+
+**PreRegistrationPayment**: the Tk 20,000 partial tuition payment required before course registration of each Term.
+
+**Installment**: one of the scheduled partial payments of the remaining Term dues after the PreRegistrationPayment.
+
+**Taka**: the currency (BDT, symbol Tk) of every amount in the app; amounts may end in .5 and are displayed with up to 2 decimals and en-IN digit grouping (Tk 1,26,000).
+_Avoid_: BDT (in UI text), taka sign, dollars
+
+**EffectiveDate**: the date (2026-10-23) the fee and grading data was taken from uiu.ac.bd; displayed with every result and in the footer because UIU may change fees without notice.
+_Avoid_: last updated (use EffectiveDate)
 
 ## Relationships
-- A Farmer has many Listings and many Orders (received).
-- A Listing belongs to exactly one Farmer, one Category and one District, and has many Comments and many Orders.
-- A Category belongs to exactly one Group; a Group is never chosen directly.
-- An Order belongs to exactly one Listing and exactly one Buyer (guest details, no account).
-- A Listing has exactly one Unit, one Grade and one category.
-- Fair price advises a Listing's price from its Category, Grade, Organic claim, Season and platform history; Stock constrains an Order's quantity.
+
+- A Program has one TermSystem, one PerCreditFee, a total Credit requirement and a LabFeePerTerm.
+- A Term contains many Courses; a Course belongs to exactly one Term.
+- A Student keeps many SavedTerms plus exactly one Planner.
+- Cgpa spans all SavedTerms and the Planner; TermGpa spans one Term.
+- A FeeBreakdown belongs to one (Program, planned Credits, WaiverTier, FirstTerm) combination and produces one PaymentSchedule.
+- A Retake of a Course replaces the earlier attempt with the same CourseCode in Cgpa and reduces tuition through the RetakeWaiver.
 
 ## Flagged ambiguities
-- "user" meant both Farmer and Buyer; use those two words.
-- "quality" meant both Grade and the Organic claim; those are two separate fields.
-- "price" meant both the Farmer's price per unit and an Order's total; say "unit price" or "order total".
-- "quantity" meant both a Listing's Stock and an Order's quantity; say "stock" or "order quantity".
+
+- "semester" meant both the generic teaching period and the B.Pharm-specific Semester; the generic word is Term, the specific one is Semester (vs Trimester).
+- "GPA" meant both the per-Term average and the cumulative one; use TermGpa and Cgpa.
+- "registration fee" meant both the per-Term TermFee (Tk 6,500/9,750) and the one-time AdmissionFee (Tk 20,000); use those two words.
+- "marks" vs "grade": percentage marks only exist in the grading-scale table; everything the Student enters is a LetterGrade.

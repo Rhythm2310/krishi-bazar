@@ -1,9 +1,3 @@
-# CI for Krishi Bazar. Versions come from .jules/deps.csv (researched 2026-10-22), not from memory.
-# Design: fast (<10 min), deterministic, pinned, one job per concern, readable logs — the Jules CI
-# Auto-Fixer works from these logs, so failing output must say what broke.
-# Notes: guard jobs use the python3 preinstalled on ubuntu-latest (scripts are stdlib-only, 3.9+).
-# Lighthouse enforcement flips on when scripts/lighthouse/enforce exists (added by T19 once budgets
-# pass) — the workflow itself is never edited after T01.
 name: ci
 on:
   pull_request:
@@ -20,124 +14,66 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version: 1.4.3
-      - run: bun install --frozen-lockfile
-      - name: Types (svelte-check, strict)
-        run: bun run check
-      - name: Lint (eslint)
-        run: bun run lint
-      - name: Format (prettier check)
-        run: bun run format
-      - name: Unit + integration tests with coverage gates (vitest, PGlite)
-        run: bun run test:unit
-      - name: Build (adapter-vercel, bun1.x)
-        run: bun run build
-      - uses: actions/upload-artifact@v7.0.2
-        if: always()
-        with:
-          name: coverage
-          path: coverage/
-          retention-days: 7
+      - uses: actions/checkout@v7
 
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: oven-sh/setup-bun@v2.2.0
+      - uses: actions/setup-node@v7
         with:
-          bun-version: 1.4.3
-      - run: bun install --frozen-lockfile
-      - run: bunx playwright install --with-deps chromium
-      - name: E2E (playwright + axe, PGlite, local photo storage)
-        run: bun run test:e2e
-      - uses: actions/upload-artifact@v7.0.2
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
+          node-version: "24.22.1"
+          cache: "npm"
 
-  lighthouse:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version: 1.4.3
-      - run: bun install --frozen-lockfile
-      - run: bun run build
-      - name: Lighthouse budgets (Perf>=90 A11y>=95 BP>=95 SEO>=95)
-        run: bun run lh
-      - uses: actions/upload-artifact@v7.0.2
-        if: always()
-        with:
-          name: lighthouse
-          path: .lighthouse/
-          retention-days: 7
+      - name: Install from the frozen lockfile
+        run: npm ci
 
-  audit:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version: 1.4.3
-      - run: bun install --frozen-lockfile
-      - name: Dependency audit (fail on High/Critical)
-        run: |
-          set -o pipefail
-          bun audit 2>&1 | tee audit.log || true
-          if grep -Eq '\((High|Critical)\)' audit.log; then
-            echo "High/Critical advisories found:"; grep -E '\((High|Critical)\)' audit.log; exit 1
-          fi
+      - name: Lint and format check
+        run: npm run lint
 
-  commitlint:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
-      - uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version: 1.4.3
-      - run: bun install --frozen-lockfile
-      - name: Conventional commits
-        run: bunx --bun commitlint --from=origin/${{ github.base_ref }} --to=HEAD --verbose
+      - name: Type check (svelte-check)
+        run: npm run check
+
+      - name: Unit tests at seam S1 (domain API)
+        run: npm run test:unit
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Page-flow tests at seam S2
+        run: npm run test:e2e
+
+      - name: Production build (adapter-vercel)
+        run: npm run build
 
   ownership-guard:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
       - name: Fail if the PR touches files its task does not own
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_HEAD_REF: ${{ github.head_ref }}
           BASE_REF: origin/${{ github.base_ref }}
-        run: python3 .jules/tools/ownership_guard.py
+        run: python .jules/tools/ownership_guard.py
 
   slop-guard:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Fail on TODOs, stubs, skipped tests, suppressions (strict - greenfield)
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Fail on TODOs, stubs, skipped tests, suppressions or other slop (strict profile)
         env:
           BASE_REF: origin/${{ github.base_ref }}
-        run: python3 .jules/tools/slop_guard.py --strict
+        run: python .jules/tools/slop_guard.py --strict

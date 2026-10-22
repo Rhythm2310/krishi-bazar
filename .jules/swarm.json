@@ -1,11 +1,11 @@
 {
-  "project": "krishi-bazar",
-  "repo": "Rhythm2310/krishi-bazar",
+  "project": "UIU Calculator",
+  "repo": "Rhythm2310/uiu-calculator",
   "default_branch": "main",
-  "base_branch": "main",
+  "base_branch": "integration/uiu-calculator",
   "glossary_file": "GLOSSARY.md",
-  "max_concurrent": 1,
-  "plan_concurrent": 1,
-  "verify_cmd": "bun run verify",
+  "max_concurrent": 4,
+  "plan_concurrent": 3,
+  "verify_cmd": "npm run verify",
   "profile": "strict"
 }

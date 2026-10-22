@@ -1,12 +1,17 @@
 # Paste into Jules: repo page > Configuration > Initial Setup, then click "Run and Snapshot".
-# Bun is preinstalled on Jules VMs. Installs are frozen so the snapshot matches .jules/deps.csv.
-# No secrets here; enable repo environment variables per task only if a task says so (none do —
-# dev and tests run fully on PGlite + local photo storage).
+# GREENFIELD ORDERING: run this AFTER the Wave 0 (T01) PR has merged, because package.json and
+# package-lock.json do not exist until foundation lands. T01 itself installs from scratch.
+# Frozen install only: every version comes from the committed lockfile (.jules/deps.csv ledger).
 set -euo pipefail
 
-bun install --frozen-lockfile
-bunx playwright install --with-deps chromium
+node --version    # expect v24.x (deps.csv runtime row pins 24.22.1 in CI)
+npm --version
 
-# Warm-up: proves the toolchain works so every agent starts from a verified base.
-bun run check
-bun run build
+npm ci
+
+# Chromium for seam S2 (Playwright page-flow tests)
+npx playwright install --with-deps chromium
+
+# Warm-up: prove the toolchain works so every agent starts from a verified base
+npm run check
+npm run test:unit
