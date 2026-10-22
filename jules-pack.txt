@@ -13,6 +13,8 @@
 # CI for Krishi Bazar. Versions come from .jules/deps.csv (researched 2026-10-22), not from memory.
 # Design: fast (<10 min), deterministic, pinned, one job per concern, readable logs — the Jules CI
 # Auto-Fixer works from these logs, so failing output must say what broke.
+# Bootstrap rule: Bun jobs run only once package.json exists (the pack lands on main before T01
+# scaffolds the app) — `hashFiles` guards keep the initial push green instead of falsely red.
 # Notes: guard jobs use the python3 preinstalled on ubuntu-latest (scripts are stdlib-only, 3.9+).
 # Lighthouse enforcement flips on when scripts/lighthouse/enforce exists (added by T19 once budgets
 # pass) — the workflow itself is never edited after T01.
@@ -31,6 +33,7 @@ permissions:
 
 jobs:
   verify:
+    if: hashFiles('package.json') != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -57,6 +60,7 @@ jobs:
           retention-days: 7
 
   e2e:
+    if: hashFiles('package.json') != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -76,6 +80,7 @@ jobs:
           retention-days: 7
 
   lighthouse:
+    if: hashFiles('package.json') != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -95,6 +100,7 @@ jobs:
           retention-days: 7
 
   audit:
+    if: hashFiles('package.json') != ''
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -112,7 +118,7 @@ jobs:
           fi
 
   commitlint:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && hashFiles('package.json') != ''
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
