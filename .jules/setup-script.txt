@@ -1,0 +1,12 @@
+# Paste into Jules: repo page > Configuration > Initial Setup, then click "Run and Snapshot".
+# Bun is preinstalled on Jules VMs. Installs are frozen so the snapshot matches .jules/deps.csv.
+# No secrets here; enable repo environment variables per task only if a task says so (none do —
+# dev and tests run fully on PGlite + local photo storage).
+set -euo pipefail
+
+bun install --frozen-lockfile
+bunx playwright install --with-deps chromium
+
+# Warm-up: proves the toolchain works so every agent starts from a verified base.
+bun run check
+bun run build

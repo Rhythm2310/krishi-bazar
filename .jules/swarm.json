@@ -1,0 +1,11 @@
+{
+  "project": "krishi-bazar",
+  "repo": "Rhythm2310/krishi-bazar",
+  "default_branch": "main",
+  "base_branch": "main",
+  "glossary_file": "GLOSSARY.md",
+  "max_concurrent": 1,
+  "plan_concurrent": 1,
+  "verify_cmd": "bun run verify",
+  "profile": "strict"
+}
