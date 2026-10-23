@@ -1,97 +1,43 @@
-name: ci
+name: CI
+
 on:
-  pull_request:
   push:
     branches: [main]
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
+  pull_request:
+    branches: [main]
 
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
-
-      - name: Detect the app manifest
-        id: manifest
-        run: |
-          if [ -f package.json ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "package.json not found: the foundation task has not merged yet. Verify steps skip and this job stays green by design."
-          fi
-
       - uses: actions/setup-node@v7
-        if: steps.manifest.outputs.present == 'true'
         with:
-          node-version: "24.22.1"
-          cache: "npm"
-
-      - name: Install from the frozen lockfile
-        if: steps.manifest.outputs.present == 'true'
-        run: npm ci
-
-      - name: Lint and format check
-        if: steps.manifest.outputs.present == 'true'
-        run: npm run lint
-
-      - name: Type check (svelte-check)
-        if: steps.manifest.outputs.present == 'true'
-        run: npm run check
-
-      - name: Unit tests at seam S1 (domain API)
-        if: steps.manifest.outputs.present == 'true'
-        run: npm run test:unit
-
-      - name: Install Chromium for Playwright
-        if: steps.manifest.outputs.present == 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Page-flow tests at seam S2
-        if: steps.manifest.outputs.present == 'true'
-        run: npm run test:e2e
-
-      - name: Production build (adapter-vercel)
-        if: steps.manifest.outputs.present == 'true'
-        run: npm run build
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify
 
   ownership-guard:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
-      - name: Fail if the PR touches files its task does not own
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_HEAD_REF: ${{ github.head_ref }}
-          BASE_REF: origin/${{ github.base_ref }}
-        run: python .jules/tools/ownership_guard.py
+          python-version: '3.12'
+      - name: Check ownership
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            python .jules/tools/ownership_guard.py origin/${{ github.base_ref }} HEAD
+          fi
 
   slop-guard:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
-      - name: Fail on TODOs, stubs, skipped tests, suppressions or other slop (strict profile)
-        env:
-          BASE_REF: origin/${{ github.base_ref }}
-        run: python .jules/tools/slop_guard.py --strict
+          python-version: '3.12'
+      - run: python .jules/tools/slop_guard.py --strict

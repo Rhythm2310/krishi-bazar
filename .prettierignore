@@ -1,0 +1,10 @@
+.svelte-kit
+build
+package-lock.json
+.agents
+.github
+.jules
+docs
+AGENTS.md
+GLOSSARY.md
+Task-prompt.md
