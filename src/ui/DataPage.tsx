@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { loadFeeOverrides, saveFeeOverrides, clearAllData } from '../state/storage';
 import { PROGRAMS } from '../data/programs';
 import type { Program } from '../domain/types';
+import { POLICY_NOTES, DATA_SOURCES } from '../data/policyNotes';
 
 export default function DataPage() {
   const [overrides, setOverrides] = useState<Record<string, Partial<Program>>>({});
@@ -85,6 +86,23 @@ export default function DataPage() {
 
       <div className="mt-2" style={{borderTop: '1px solid #dee2e6', paddingTop: '10px'}}>
         <button className="danger" onClick={handleReset}>Reset All Data</button>
+      </div>
+
+      <div className="mt-2" style={{borderTop: '1px solid #dee2e6', paddingTop: '10px'}}>
+        <h3>Scholarship & waiver policy (summary)</h3>
+        <ul>
+          {POLICY_NOTES.map((note, idx) => (
+            <li key={idx}><strong>{note.title}:</strong> {note.body}</li>
+          ))}
+        </ul>
+        <p style={{fontSize: '0.9em', color: 'var(--text-light)', marginTop: '10px'}}>
+          Sources: {DATA_SOURCES.map((src, idx) => (
+            <span key={idx}>
+              <a href={src.url} target="_blank" rel="noopener noreferrer">{src.label}</a>
+              {idx < DATA_SOURCES.length - 1 ? ', ' : ''}
+            </span>
+          ))}
+        </p>
       </div>
 
       <div className="mt-2" style={{borderTop: '1px solid #dee2e6', paddingTop: '10px'}}>

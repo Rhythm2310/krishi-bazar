@@ -4,6 +4,7 @@ import { computeTermFee, computeDegreeTotal } from '../domain/fees';
 import { formatBdt } from '../domain/format';
 import { loadFeeOverrides } from '../state/storage';
 import { PROGRAMS } from '../data/programs';
+import { parseCreditInput, parseWaiverInput } from './parseInputs';
 
 export default function FeeBreakdown() {
   const [selectedProgramCode, setSelectedProgramCode] = useState<string>(PROGRAMS[0].code);
@@ -11,6 +12,10 @@ export default function FeeBreakdown() {
   const [nextId, setNextId] = useState(1);
   const [waiverPct, setWaiverPct] = useState<number>(0);
   const [overrides, setOverrides] = useState<Record<string, Partial<Program>>>({});
+
+  const [rawWaiver, setRawWaiver] = useState<string>('0');
+  const [rawCredits, setRawCredits] = useState<Record<string, string>>({});
+  const [isCustomWaiver, setIsCustomWaiver] = useState<boolean>(false);
 
   useEffect(() => {
     setOverrides(loadFeeOverrides());
@@ -30,10 +35,38 @@ export default function FeeBreakdown() {
     setNextId(nextId + 1);
   };
 
-  const removeCourse = (id: string) => setCourses(courses.filter(c => c.id !== id));
+  const removeCourse = (id: string) => {
+    setCourses(courses.filter(c => c.id !== id));
+    const newRaws = { ...rawCredits };
+    delete newRaws[`${id}-credits`];
+    setRawCredits(newRaws);
+  };
 
   const updateCourse = (id: string, field: keyof CourseEntry, value: any) => {
     setCourses(courses.map(c => c.id === id ? { ...c, [field]: value } : c));
+  };
+
+  const handleWaiverSelect = (val: string) => {
+    if (val === 'custom') {
+      setIsCustomWaiver(true);
+    } else {
+      setIsCustomWaiver(false);
+      const num = parseInt(val);
+      setWaiverPct(num);
+      setRawWaiver(val);
+    }
+  };
+
+  const handleCustomWaiverChange = (raw: string) => {
+    setRawWaiver(raw);
+    const { value } = parseWaiverInput(raw);
+    setWaiverPct(value);
+  };
+
+  const handleCreditChange = (id: string, raw: string) => {
+    setRawCredits({ ...rawCredits, [`${id}-credits`]: raw });
+    const { value } = parseCreditInput(raw);
+    updateCourse(id, 'credits', value);
   };
 
   const termFeeData = computeTermFee(program, courses, waiverPct);
@@ -52,36 +85,59 @@ export default function FeeBreakdown() {
         </label>
         <label>
           Waiver %:
-          <select value={waiverPct} onChange={e => setWaiverPct(parseInt(e.target.value))}>
+          <select value={isCustomWaiver ? 'custom' : waiverPct} onChange={e => handleWaiverSelect(e.target.value)}>
             <option value="0">0%</option>
             <option value="25">25%</option>
             <option value="50">50%</option>
             <option value="100">100%</option>
+            <option value="custom">Custom...</option>
           </select>
         </label>
+        {isCustomWaiver && (
+          <label>
+            Custom Waiver:
+            <input type="text" inputMode="decimal" value={rawWaiver} onChange={e => handleCustomWaiverChange(e.target.value)} onBlur={() => setRawWaiver(waiverPct.toString())} />
+            {parseWaiverInput(rawWaiver).error && <div className="error" style={{ fontSize: '0.8em', marginTop: '4px' }}>{parseWaiverInput(rawWaiver).error}</div>}
+          </label>
+        )}
       </div>
 
       <h3 className="mt-2">Term Courses</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Course Name</th><th>Credits</th><th>Retake?</th><th>1st Time?</th><th>Waiver Inel?</th><th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {courses.map(course => (
-            <tr key={course.id}>
-              <td><input type="text" value={course.name} onChange={e => updateCourse(course.id, 'name', e.target.value)} /></td>
-              <td><input type="number" min="0.5" max="6" step="0.5" value={course.credits} onChange={e => updateCourse(course.id, 'credits', parseFloat(e.target.value) || 0)} /></td>
-              <td><input type="checkbox" checked={course.isRetake} onChange={e => updateCourse(course.id, 'isRetake', e.target.checked)} /></td>
-              <td>{course.isRetake && <input type="checkbox" checked={course.retakeFirstTime} onChange={e => updateCourse(course.id, 'retakeFirstTime', e.target.checked)} />}</td>
-              <td><input type="checkbox" checked={course.waiverIneligible} onChange={e => updateCourse(course.id, 'waiverIneligible', e.target.checked)} /></td>
-              <td><button className="danger" onClick={() => removeCourse(course.id)}>Remove</button></td>
+
+      {courses.length === 0 ? (
+        <div className="mt-2" style={{ padding: '20px', background: 'var(--bg)', borderRadius: '4px', textAlign: 'center' }}>
+          <p>Select a program and add courses to see your term fee breakdown.</p>
+        </div>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Course Name</th><th>Credits</th><th>Retake?</th><th>1st Time?</th><th>Waiver Inel?</th><th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <button onClick={addCourse}>Add Course</button>
+          </thead>
+          <tbody>
+            {courses.map(course => {
+              const raw = rawCredits[`${course.id}-credits`] ?? course.credits.toString();
+              const { error } = parseCreditInput(raw);
+              return (
+                <tr key={course.id}>
+                  <td><input type="text" value={course.name} onChange={e => updateCourse(course.id, 'name', e.target.value)} /></td>
+                  <td>
+                    <input type="text" inputMode="decimal" value={raw} onChange={e => handleCreditChange(course.id, e.target.value)} onBlur={() => setRawCredits({ ...rawCredits, [`${course.id}-credits`]: course.credits.toString() })} />
+                    {error && <div className="error" style={{ fontSize: '0.8em', marginTop: '4px' }}>{error}</div>}
+                  </td>
+                  <td><input type="checkbox" checked={course.isRetake} onChange={e => updateCourse(course.id, 'isRetake', e.target.checked)} /></td>
+                  <td>{course.isRetake && <input type="checkbox" checked={course.retakeFirstTime} onChange={e => updateCourse(course.id, 'retakeFirstTime', e.target.checked)} />}</td>
+                  <td><input type="checkbox" checked={course.waiverIneligible} onChange={e => updateCourse(course.id, 'waiverIneligible', e.target.checked)} /></td>
+                  <td><button className="danger" onClick={() => removeCourse(course.id)}>Remove</button></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+
+      <button className="mt-1" onClick={addCourse}>Add Course</button>
 
       <div className="mt-2" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
         <div style={{ flex: '1', minWidth: '300px' }}>
