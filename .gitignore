@@ -1,0 +1,14 @@
+node_modules/
+.svelte-kit/
+build/
+dist/
+.vercel/
+playwright-report/
+test-results/
+coverage/
+.env
+.env.*
+!.env.example
+.DS_Store
+__pycache__/
+*.pyc

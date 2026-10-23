@@ -1,19 +1,20 @@
 pattern,class,owner_task,notes
-package.json,hot,T01,Every dependency pre-provisioned by foundation at the exact versions pinned in .jules/deps.csv. No other task adds or changes anything here.
-package-lock.json,hot,T01,Committed by foundation after npm install. Frozen installs only (npm ci).
-.github/workflows/**,hot,T01,CI. The pack ships ci.yml complete; foundation guards it and nobody else edits it.
-static/**,hot,T01,Static assets root (favicon).
-svelte.config.js,contract,T01,adapter-vercel wiring. Frozen after Wave 0.
-vite.config.ts,contract,T01,SvelteKit plugin plus Vitest config. Frozen after Wave 0.
-tsconfig.json,contract,T01,Strict TypeScript. Frozen after Wave 0.
-eslint.config.js,contract,T01,Flat config. Frozen after Wave 0.
+package.json,hot,T01,All dependencies pre-provisioned in Wave 0 at the versions pinned in .jules/deps.csv.
+package-lock.json,hot,T01,Committed by foundation. Frozen installs only (npm ci).
+.gitignore,hot,T01,Shipped with the pack; foundation may extend it for tool outputs.
+.github/workflows/**,hot,T01,CI. Only foundation edits it; CI Auto-Fixer may not (AGENTS.md section 8).
+static/**,hot,T01,Favicon and static assets.
+svelte.config.js,contract,T01,Frozen after Wave 0; adapter-vercel is wired here.
+vite.config.ts,contract,T01,Frozen after Wave 0; svelte plugin and the Vitest config live here.
+tsconfig.json,contract,T01,Frozen after Wave 0; strict.
+eslint.config.js,contract,T01,Frozen after Wave 0; flat config.
 .prettierrc,contract,T01,Frozen after Wave 0.
-.prettierignore,contract,T01,Keeps prettier --check off architect-owned docs and generated dirs. Frozen after Wave 0.
-playwright.config.ts,contract,T01,Chromium only; webServer builds and previews on port 4173. Frozen after Wave 0.
-src/app.html,contract,T01,App shell. Frozen after Wave 0.
-src/app.css,contract,T01,Design tokens (custom properties) and base styles. Frozen after Wave 0. Components consume tokens; they never edit this file.
-src/app.d.ts,contract,T01,Ambient App types. Frozen after Wave 0.
-src/routes/+layout.svelte,contract,T01,Header/footer with the U9 disclaimer and EffectiveDate. Frozen after Wave 0.
-src/routes/+layout.ts,contract,T01,prerender=true: the whole app ships as static output. Frozen after Wave 0.
-src/lib/domain/contracts.ts,contract,T01,Every shared domain type and function signature. Frozen after Wave 0; change only via an amendment task.
-src/lib/domain/data/**,contract,T01,Grading scale (11 LetterGrades) / 12 Programs / FeeRules with EffectiveDate and source URLs. Frozen after Wave 0; fee changes go through an amendment task.
+.prettierignore,contract,T01,Frozen after Wave 0.
+playwright.config.ts,contract,T01,Frozen after Wave 0; Chromium only; preview server on port 4173.
+src/app.html,contract,T01,Frozen after Wave 0.
+src/app.css,contract,T01,Design tokens. Frozen after Wave 0. Consume the custom properties; never edit.
+src/app.d.ts,contract,T01,Frozen after Wave 0.
+src/routes/+layout.svelte,contract,T01,App shell and footer (EffectiveDate + disclaimer + sources). Frozen after Wave 0.
+src/routes/+layout.ts,contract,T01,Prerender flag. Frozen after Wave 0.
+src/lib/domain/contracts.ts,contract,T01,Every shared type and function signature. Frozen after Wave 0; change only via a request (AGENTS.md 5.7).
+src/lib/domain/data/**,contract,T01,Grading scale; 12-Program fee table; fee rules with EffectiveDate and sources. Frozen; fee updates only via an amendment task.

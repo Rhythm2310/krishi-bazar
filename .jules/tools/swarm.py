@@ -7,6 +7,7 @@
   python .jules/tools/swarm.py replan [--out F]  bundle reports, requests and plan for the architect
   python .jules/tools/swarm.py guard             run slop_guard and ownership_guard locally
 
+OPTIONAL power tool: the user never has to run it; Task-prompt.md carries every prompt and step.
 Settings live in .jules/swarm.json (repo, base_branch, glossary_file, max_concurrent, plan_concurrent).
 Global option: --root PATH (default: the git top-level, else the current directory).
 Needs Python 3.9+ and git. Stdlib only.
@@ -303,7 +304,7 @@ def cmd_doctor(a):
              f"base branch '{base}' not on origin yet: `git push -u origin {base}` before launching" if have_local else
              f"base branch '{base}' not found: create it from the default branch")
 
-    need = ["AGENTS.md", ".jules/tasks.csv", ".jules/ownership.csv", ".jules/skills.csv", ".jules/deps.csv",
+    need = ["Task-prompt.md", "AGENTS.md", ".jules/tasks.csv", ".jules/ownership.csv", ".jules/skills.csv", ".jules/deps.csv",
             ".jules/plan.md", ".github/workflows/ci.yml", ".github/pull_request_template.md"]
     for rel in need:
         line(OK if os.path.exists(os.path.join(root, rel)) else BAD, rel)
@@ -357,7 +358,7 @@ def cmd_doctor(a):
         print(f"NOT READY: {errs} problem(s) to fix before launching.")
         return 1
     note = f" ({warns} warning(s) worth reading)" if warns else ""
-    print(f"READY{note}. Commit and push, then run `python .jules/tools/swarm.py launch`.")
+    print(f"READY{note}. Commit, push, then follow Task-prompt.md.")
     return 0
 
 

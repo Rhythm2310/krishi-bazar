@@ -18,30 +18,48 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Detect the app manifest
+        id: manifest
+        run: |
+          if [ -f package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "package.json not found: the foundation task has not merged yet. Verify steps skip and this job stays green by design."
+          fi
+
       - uses: actions/setup-node@v7
+        if: steps.manifest.outputs.present == 'true'
         with:
           node-version: "24.22.1"
           cache: "npm"
 
       - name: Install from the frozen lockfile
+        if: steps.manifest.outputs.present == 'true'
         run: npm ci
 
       - name: Lint and format check
+        if: steps.manifest.outputs.present == 'true'
         run: npm run lint
 
       - name: Type check (svelte-check)
+        if: steps.manifest.outputs.present == 'true'
         run: npm run check
 
       - name: Unit tests at seam S1 (domain API)
+        if: steps.manifest.outputs.present == 'true'
         run: npm run test:unit
 
       - name: Install Chromium for Playwright
+        if: steps.manifest.outputs.present == 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Page-flow tests at seam S2
+        if: steps.manifest.outputs.present == 'true'
         run: npm run test:e2e
 
       - name: Production build (adapter-vercel)
+        if: steps.manifest.outputs.present == 'true'
         run: npm run build
 
   ownership-guard:

@@ -29,6 +29,25 @@ def split(v):
     return [x.strip() for x in (v or "").split(";") if x.strip()]
 
 
+def task_prompt(r, root, glossary, branch, tpl=None):
+    """Return the filled launcher prompt for one tasks.csv row."""
+    tid = r["task_id"].strip()
+    found = sorted(glob.glob(os.path.join(root, ".jules", "tasks", f"{tid}-*.md")))
+    task_file = (".jules/tasks/" + os.path.basename(found[0])) if found \
+        else f".jules/tasks/{tid}-{r['slug'].strip()}.md"
+    vals = {
+        "TASK_ID": tid, "WAVE": r["wave"].strip(), "TASK_FILE": task_file,
+        "OWNS": ", ".join(split(r["owns"])), "SLUG": r["slug"].strip(),
+        "DEPENDS": ", ".join(split(r["depends_on"])) or "none",
+        "SKILLS": ", ".join(split(r["skills"])) or "none",
+        "MODEL": r["model"].strip(), "GLOSSARY": glossary, "BASE": branch,
+    }
+    prompt = tpl or DEFAULT
+    for k, v in vals.items():
+        prompt = prompt.replace("{{" + k + "}}", v)
+    return prompt, vals
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tasks", help="default: <root>/.jules/tasks.csv")
@@ -82,19 +101,7 @@ def main():
                   f"Start all sessions below from `{a.branch}`.\n")
         for r in rs:
             tid = r["task_id"].strip()
-            found = sorted(glob.glob(os.path.join(a.root, ".jules", "tasks", f"{tid}-*.md")))
-            task_file = (".jules/tasks/" + os.path.basename(found[0])) if found \
-                else f".jules/tasks/{tid}-{r['slug'].strip()}.md"
-            vals = {
-                "TASK_ID": tid, "WAVE": r["wave"].strip(), "TASK_FILE": task_file,
-                "OWNS": ", ".join(split(r["owns"])), "SLUG": r["slug"].strip(),
-                "DEPENDS": ", ".join(split(r["depends_on"])) or "none",
-                "SKILLS": ", ".join(split(r["skills"])) or "none",
-                "MODEL": r["model"].strip(), "GLOSSARY": a.glossary, "BASE": a.branch,
-            }
-            prompt = tpl
-            for k, v in vals.items():
-                prompt = prompt.replace("{{" + k + "}}", v)
+            prompt, vals = task_prompt(r, a.root, a.glossary, a.branch, tpl)
             shown = "" if vals["MODEL"].lower() == "default" else f"  (model: {vals['MODEL']})"
             print(f"### {tid}: {r['title'].strip()}{shown}\n")
             print("```text\n" + prompt.rstrip() + "\n```\n")

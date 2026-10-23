@@ -1,25 +1,25 @@
 ecosystem,package,version,role,status,checked_on,source,replaces,notes
-runtime,nodejs,24,runtime,stable,2026-10-23,https://endoflife.date/nodejs,,LTS since 2025-10-28; EOL 2028-04-30. CI and setup script pin the full version 24.22.1. Node 26 becomes LTS on 2026-10-28: revisit at the next REPLAN. Satisfies @sveltejs/kit engines >=22.17.
-runtime,python,3.12,ci-guards,stable,2026-10-23,https://endoflife.date/python,,Runs the .jules/tools guards in CI. Scripts need >=3.9; EOL 2028-04.
-npm,@sveltejs/kit,3.0.1,framework,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/kit,,Peers satisfied by this ledger: vite ^8.0.12 / svelte ^5.57.1 / typescript ^6 / @sveltejs/vite-plugin-svelte ^7. Latest 3.1.0 skipped: only 9 days old (2-week rule).
-npm,svelte,5.57.2,framework,stable,2026-10-23,https://registry.npmjs.org/svelte,,Svelte 5 runes mode. 17 days old.
-npm,@sveltejs/adapter-vercel,7.0.0,build,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/adapter-vercel,,Deploys to Vercel (Node serverless/static output). Latest 7.0.1 skipped: 9 days old.
+runtime,nodejs,24,runtime,stable,2026-10-23,https://nodejs.org/dist/index.json,,Active LTS "Krypton" (LTS since 2025-10-28; EOL 2028-04-30). CI and the setup script pin the exact patch 24.22.1. 2-week-rule exception: Node core patch lines exist to ship security fixes; 24.22.1 (2026-10-20) supersedes 24.22.0 (2026-10-14). Node 26 becomes LTS 2026-10-28: revisit at the next REPLAN. Satisfies @sveltejs/kit engines >=22.17 and vitest engines ^24.
+runtime,python,3.12,ci-guards,stable,2026-10-23,https://endoflife.date/python,,Runs the .jules/tools guards in CI. Scripts need >=3.9; EOL 2028-10-31.
+npm,@sveltejs/kit,3.0.1,framework,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/kit,,Peers satisfied by this ledger: vite ^8.0.12 / svelte ^5.57.1 / typescript ^6 / @sveltejs/vite-plugin-svelte ^7. Latest 3.1.0 skipped: 9 days old (2-week rule).
+npm,svelte,5.57.2,framework,stable,2026-10-23,https://registry.npmjs.org/svelte,,Svelte 5 runes mode. 17 days old. Satisfies peers of kit / vite-plugin-svelte / svelte-check / eslint-plugin-svelte / prettier-plugin-svelte.
+npm,@sveltejs/adapter-vercel,7.0.0,build,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/adapter-vercel,,Deploys to Vercel. Peer @sveltejs/kit ^3 satisfied. Latest 7.0.1 skipped: 9 days old.
 npm,@sveltejs/vite-plugin-svelte,7.3.1,build,stable,2026-10-23,https://registry.npmjs.org/@sveltejs/vite-plugin-svelte,,Peers vite ^8 and svelte ^5.46.4 satisfied. 30 days old.
-npm,vite,8.3.4,build,stable,2026-10-23,https://registry.npmjs.org/vite,,Latest 8.3.5 skipped: 2 days old.
-npm,typescript,6.0.3,tooling,stable,2026-10-23,https://registry.npmjs.org/typescript,,Satisfies kit peer ^6.0.0 and typescript-eslint peer <6.1.0 simultaneously. 190 days old.
+npm,vite,8.3.4,build,stable,2026-10-23,https://registry.npmjs.org/vite,,Satisfies kit peer ^8.0.12 and vitest peer ^8. Latest 8.3.5 skipped: 2 days old.
+npm,typescript,6.0.3,tooling,stable,2026-10-23,https://registry.npmjs.org/typescript,,Newest 6.x (2026-04-16). Satisfies kit peer ^6.0.0; svelte-check peer ^5||^6 and typescript-eslint peer <6.1.0 simultaneously. typescript 7.0.2 is latest overall but breaks both those peer ranges: do not bump.
 npm,svelte-check,4.7.6,tooling,stable,2026-10-23,https://registry.npmjs.org/svelte-check,,Type-checks .svelte files. Latest 4.7.7 skipped: 7 days old.
-npm,vitest,5.0.3,test,stable,2026-10-23,https://registry.npmjs.org/vitest,,S1 seam runner (node environment). Peer vite ^8 satisfied. Latest 5.0.5 skipped: 8 days old.
+npm,vitest,5.0.3,test,stable,2026-10-23,https://registry.npmjs.org/vitest,,S1 seam runner (node environment). Peer vite ^8 satisfied; engines ^22.12||^24||>=26 met by Node 24. 5.0.5 (8 days) and 5.0.4 (11 days) skipped.
 npm,@playwright/test,1.64.0,test,stable,2026-10-23,https://registry.npmjs.org/@playwright/test,,S2 seam runner; Chromium only. Latest 1.64.1 skipped: 9 days old.
 npm,eslint,10.12.0,lint,stable,2026-10-23,https://registry.npmjs.org/eslint,,Flat config. Latest 10.13.0 skipped: 7 days old.
-npm,@eslint/js,10.0.1,lint,stable,2026-10-23,https://registry.npmjs.org/@eslint/js,,Matches the eslint 10 major.
-npm,typescript-eslint,8.71.1,lint,stable,2026-10-23,https://registry.npmjs.org/typescript-eslint,,Peers eslint ^10 and typescript <6.1.0 satisfied. Latest 8.72.0 skipped: 4 days old.
-npm,eslint-plugin-svelte,3.23.1,lint,stable,2026-10-23,https://registry.npmjs.org/eslint-plugin-svelte,,Peers eslint ^10 and svelte ^5 satisfied. 14 days old.
+npm,@eslint/js,10.0.1,lint,stable,2026-10-23,https://registry.npmjs.org/@eslint/js,,Matches the eslint 10 major; peer eslint ^10.
+npm,typescript-eslint,8.71.1,lint,stable,2026-10-23,https://registry.npmjs.org/typescript-eslint,,Peers eslint ^10 and typescript <6.1.0 satisfied. 8.72.0 (4 days) and 8.71.2 (11 days) skipped.
+npm,eslint-plugin-svelte,3.23.1,lint,stable,2026-10-23,https://registry.npmjs.org/eslint-plugin-svelte,,Peers eslint ^10 and svelte ^5. 14 days old.
 npm,eslint-config-prettier,10.1.8,lint,stable,2026-10-23,https://registry.npmjs.org/eslint-config-prettier,,Disables formatting rules that fight Prettier. Loaded last.
 npm,prettier,3.9.9,format,stable,2026-10-23,https://registry.npmjs.org/prettier,,Latest 3.9.10 skipped: 13 days old (2-week rule).
-npm,prettier-plugin-svelte,4.1.1,format,stable,2026-10-23,https://registry.npmjs.org/prettier-plugin-svelte,,Peers prettier ^3 and svelte ^5 satisfied.
-npm,globals,17.13.0,lint,stable,2026-10-23,https://registry.npmjs.org/globals,,Browser and node globals for the flat config.
-npm,tslib,2.8.1,runtime-helper,stable,2026-10-23,https://registry.npmjs.org/tslib,,TS helper runtime expected by the Svelte toolchain.
-npm,@types/node,24.19.2,types,stable,2026-10-23,https://registry.npmjs.org/@types/node,,Matches the Node 24 runtime line.
-actions,actions/checkout,v7,ci,stable,2026-10-23,https://github.com/actions/checkout/releases,,Latest release v7.0.1; pinned to the stable major tag v7.
-actions,actions/setup-node,v7,ci,stable,2026-10-23,https://github.com/actions/setup-node/releases,,Latest release v7.1.0; stable major tag v7.
-actions,actions/setup-python,v7,ci,stable,2026-10-23,https://github.com/actions/setup-python/releases,,Latest release v7.1.0; stable major tag v7. Used by the guard jobs.
+npm,prettier-plugin-svelte,4.1.1,format,stable,2026-10-23,https://registry.npmjs.org/prettier-plugin-svelte,,Peers prettier ^3 and svelte ^5. 130 days old.
+npm,globals,17.13.0,lint,stable,2026-10-23,https://registry.npmjs.org/globals,,Browser and node globals for the flat config. 22 days old.
+npm,tslib,2.8.1,runtime-helper,stable,2026-10-23,https://registry.npmjs.org/tslib,,TS helper runtime expected by the Svelte toolchain. Finished library; not deprecated.
+npm,@types/node,24.19.2,types,stable,2026-10-23,https://registry.npmjs.org/@types/node,,Newest 24.x; matches the Node 24 runtime line (26.x exists but must match the runtime). Satisfies vite peer >=22.12 and vitest peer >=24.
+actions,actions/checkout,v7,ci,stable,2026-10-23,https://github.com/actions/checkout/releases,,Latest release v7.0.1 (2026-07-20); pinned to the stable major tag v7.
+actions,actions/setup-node,v7,ci,stable,2026-10-23,https://github.com/actions/setup-node/releases,,Latest release v7.1.0 (2026-10-08); stable major tag v7.
+actions,actions/setup-python,v7,ci,stable,2026-10-23,https://github.com/actions/setup-python/releases,,Latest release v7.1.0 (2026-10-22); stable major tag v7. Used by the guard jobs.

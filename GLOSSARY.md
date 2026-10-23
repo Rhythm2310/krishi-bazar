@@ -41,7 +41,7 @@ _Avoid_: GPA (alone), cumulative GPA, average
 **EarnedCredits**: Credits from Courses graded D or higher; an F earns nothing and the Course must be retaken.
 _Avoid_: completed credits, passed hours
 
-**Retake**: re-registering for a Course after an F or for grade improvement; the new attempt replaces the earlier attempt with the same CourseCode in Cgpa, and its Credits get the RetakeWaiver the first time.
+**Retake**: re-registering for a Course after an F or for grade improvement; the new attempt replaces the earlier attempt with the same CourseCode in Cgpa (ADR 0002), and its Credits get the RetakeWaiver the first time.
 _Avoid_: repeat, retake-course, improvement (alone)
 
 **RetakeWaiver**: the 50% reduction of the tuition charge on Retake Credits (first retake of a Course only, per official policy).

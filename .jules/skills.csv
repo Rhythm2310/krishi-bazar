@@ -1,7 +1,7 @@
 skill,source,install_path,applies_to,enabled,notes
-domain-language,mattpocock/skills domain-modeling (swarm-side reading; adapted),.agents/skills/domain-language/SKILL.md,every task,yes,Use GLOSSARY.md words in code/tests/commits/PRs; file glossary requests; read ADRs in your area.
-tdd,https://github.com/mattpocock/skills (skills/engineering/tdd; adapted),.agents/skills/tdd/SKILL.md,foundation;feature;integrate tasks,yes,Red before green at the seams listed in the task file; report the first-red line per slice.
-code-review,https://github.com/mattpocock/skills (skills/engineering/code-review; adapted),.agents/skills/code-review/SKILL.md,every code task and review tasks,yes,Two-axis self-review before the PR (Spec then Standards); method for review-mode tasks.
-codebase-design,https://github.com/mattpocock/skills (skills/engineering/codebase-design; adapted),.agents/skills/codebase-design/SKILL.md,foundation;feature;integrate;review tasks,yes,Deep modules behind the frozen contract; seams; deletion test.
-pr,https://github.com/mattpocock/skills (skills/engineering/pr; adapted),.agents/skills/pr/SKILL.md,every task that opens a PR,yes,Summary visual; before/after evidence; merge-danger call.
-diagnosing-bugs,https://github.com/mattpocock/skills (skills/engineering/diagnosing-bugs; adapted),.agents/skills/diagnosing-bugs/SKILL.md,fix tasks,no,Enabled via REPLAN when a fix wave is planned.
+domain-language,mattpocock/skills domain-modeling (swarm-side reading; adapted),.agents/skills/domain-language/SKILL.md,every task,yes,Use glossary words; file glossary requests; read ADRs.
+tdd,https://github.com/mattpocock/skills (skills/engineering/tdd; adapted),.agents/skills/tdd/SKILL.md,foundation;feature;refactor;fix;integrate tasks,yes,Red before green at the listed seams. Includes tests.md and mocking.md content.
+code-review,https://github.com/mattpocock/skills (skills/engineering/code-review; adapted),.agents/skills/code-review/SKILL.md,every code task and review tasks,yes,Two-axis self-review; method for review-mode tasks.
+codebase-design,https://github.com/mattpocock/skills (skills/engineering/codebase-design; adapted),.agents/skills/codebase-design/SKILL.md,foundation;refactor;review tasks,yes,Deep modules and seams.
+pr,https://github.com/mattpocock/skills (skills/engineering/pr; adapted),.agents/skills/pr/SKILL.md,every task that opens a PR,yes,Summary visual; before/after evidence; merge danger.
+diagnosing-bugs,https://github.com/mattpocock/skills (skills/engineering/diagnosing-bugs; adapted),.agents/skills/diagnosing-bugs/SKILL.md,fix tasks,no,Enable only when the plan has fix-mode tasks (a REPLAN fix wave enables it).

@@ -1,15 +1,15 @@
-# 0001. SavedTerms live in browser localStorage only — no backend, no accounts
+# 0001. Browser-local state only: no accounts, no backend
 
 Status: accepted | Date: 2026-10-23
 
 ## Context
 
-The app keeps a Student's SavedTerms across visits so Cgpa can span Terms. The alternatives considered: (a) a backend with accounts and a database, (b) browser localStorage, (c) import/export files only. The data is personal, low-volume (a few KB per Student), needed on one device at a time, and contains no secrets. A backend would add auth, hosting state, privacy obligations and two more modules to the swarm plan, for a calculator whose entire domain is pure functions. Alternatives (b) and (c) were weighed against cross-device sync, which no stated user needs.
+SavedTerms (the Student's finished Term plans that feed the Cgpa) must survive reloads and repeat visits. The alternatives: (a) a backend with accounts and a database, (b) browser localStorage, (c) no persistence. A backend adds secrets, deployment moving parts, moderation of user data and at least two extra swarm tasks for zero revenue; the app is a pure client-side calculator. No persistence would make the Cgpa story (U4) useless across visits. The whole app prerenders to static output, so any server-side state would also break the Vercel static deployment.
 
 ## Decision
 
-All Student state (SavedTerms, selected Program, WaiverTier, FirstTerm flag) persists in browser localStorage under one versioned key. The domain stays pure: it receives state and returns results; it never reads storage itself. There is no server-side state anywhere in the app.
+All Student state (Program choice, FirstTerm flag, WaiverTier, SavedTerms, Planner) lives in the browser under one versioned localStorage key (`uiu-calculator.state.v1`). Unparseable or wrong-version data starts empty and keeps the raw string under a `.bak` key. There are no accounts, no server calls, no secrets, no environment variables.
 
 ## Consequences
 
-Easier: the deployed app is static output on Vercel with zero runtime cost and zero user data held; every domain function stays trivially testable at seam S1; the swarm needs no database, auth or API tasks, which keeps ownership disjoint. Harder: no cross-device sync and clearing browser data erases SavedTerms — the UI must say this plainly. A future backend must slot in behind the same state shape (the versioned storage key is the migration seam), so the stored JSON schema may not diverge from the domain types. Do not reverse this casually: introducing server state changes the deployment model, the privacy surface and the whole test strategy at once.
+Easy: zero infrastructure, zero secrets, offline-capable, trivially testable at seam S2 (write, reload, read). Hard: no cross-device sync and no recovery after clearing browser data — accepted, and stated in the README. Do not reverse this casually: every domain module and the whole CI pipeline assume a static, secret-free app; a backend would change the deploy target, the threat model and half the plan.

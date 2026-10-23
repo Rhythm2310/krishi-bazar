@@ -16,7 +16,7 @@ import sys
 TASKS = ".jules/tasks.csv"
 RESERVED = ["AGENTS.md", ".jules/tasks/**", ".jules/tasks.csv", ".jules/ownership.csv",
             ".jules/skills.csv", ".jules/deps.csv", ".jules/tools/**", ".jules/plan.md",
-            ".agents/skills/**", "GLOSSARY.md", "CONTEXT.md", ".jules/spec.md", ".jules/swarm.json", ".jules/README.md", "docs/adr/**"]
+            ".agents/skills/**", "GLOSSARY.md", "CONTEXT.md", ".jules/spec.md", ".jules/swarm.json", "docs/adr/**"]
 
 
 def to_regex(glob):

@@ -1,17 +1,16 @@
 # Paste into Jules: repo page > Configuration > Initial Setup, then click "Run and Snapshot".
-# GREENFIELD ORDERING: run this AFTER the Wave 0 (T01) PR has merged, because package.json and
-# package-lock.json do not exist until foundation lands. T01 itself installs from scratch.
-# Frozen install only: every version comes from the committed lockfile (.jules/deps.csv ledger).
+# Idempotent and fast. Frozen installs only (versions pinned in .jules/deps.csv). No secrets in this file.
 set -euo pipefail
 
-node --version    # expect v24.x (deps.csv runtime row pins 24.22.1 in CI)
-npm --version
+node --version     # Jules preinstalls Node; deps.csv pins the 24 line (CI runs 24.22.1)
+python3 --version  # the .jules/tools guards need Python >= 3.9 (deps.csv pins 3.12)
 
-npm ci
+if [ -f package.json ]; then
+  npm ci           # frozen install from the committed lockfile
+else
+  echo "No package.json yet (pre-foundation commit) - nothing to install."
+fi
 
-# Chromium for seam S2 (Playwright page-flow tests)
-npx playwright install --with-deps chromium
-
-# Warm-up: prove the toolchain works so every agent starts from a verified base
-npm run check
-npm run test:unit
+if [ -f playwright.config.ts ]; then
+  npx playwright install --with-deps chromium || echo "Playwright browser install failed here; run 'npx playwright install --with-deps chromium' inside the task session before the e2e tests."
+fi

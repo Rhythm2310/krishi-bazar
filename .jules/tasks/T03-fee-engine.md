@@ -3,96 +3,84 @@
 Wave: 1 | Model: gemini pro 15 | Size: M | Mode: feature
 Branch: `jules/T03-fee-engine` | PR title: `[T03] Fee engine domain module`
 Skills: domain-language; tdd; codebase-design; code-review; pr
-Serves: U2, U5, U6, U7, U8 | Seams under test: S1
+Serves: U2 (RetakeWaiver math), U5, U6, U7, U8 | Seams under test: S1
 
 Read `/AGENTS.md` first. It overrides anything below that conflicts with sections 5, 6, 8, 11.
 
 ## Objective
 
-When this is merged, the domain answers every money question the Planner UI (T04) will ask, in exact Taka: the itemized FeeBreakdown for a (Program, planned Credits, Retake Credits, FirstTerm, WaiverTier) combination; the PaymentSchedule with the official Tk 20,000 PreRegistrationPayment and 40/30/30 (Trimester) or 4×25% (Semester) Installments; the whole-degree ProgramTotal whose tier-0 values equal UIU's officially published totals; and Program lookup. All pure TypeScript behind the frozen contract, tested at S1 against golden values.
+The fees module becomes deep: behind the frozen contract, one pure function turns a FeeInput into an itemized FeeBreakdown in exact Taka (tuition gross, first-time 50% RetakeWaiver, WaiverTier reduction on non-Retake Credits only, TermFee, LabFee, FirstTerm one-time charges with the refundable CautionMoney separated), a second derives the official PaymentSchedule, and a third computes whole-degree ProgramTotals that reproduce all 12 official published tier-0 totals exactly. Nothing here touches the UI — T04 consumes these functions.
 
 ## Context pointers
 
-Read these when the condition holds; each is a path, not a copy.
-- Always: `GLOSSARY.md`; `.jules/spec.md` stories U2, U5–U8, seam S1, and the Implementation Decisions on fee math, the PaymentSchedule and the whole-degree total.
-- When touching the shared surface: `src/lib/domain/contracts.ts`, `src/lib/domain/data/programs.ts`, `src/lib/domain/data/fee-rules.ts` (read-only — every constant you need is in `FEE_RULES` and `PROGRAMS`; never hardcode a number that lives there).
-- Earlier work you build on: `.jules/reports/T01.md` — validation style (RangeError one-liners) from the grading tracer.
+- Always: `GLOSSARY.md` (FeeBreakdown, FeeLine, PerCreditFee, TermFee, LabFee, AdmissionFee, CautionMoney, FirstTerm, WaiverTier, RetakeWaiver, PaymentSchedule, PreRegistrationPayment, Installment, Taka); `.jules/spec.md` stories U2, U5–U8 and the Fee math / PaymentSchedule / Money decisions.
+- Earlier work you build on: `.jules/reports/T01.md`, `src/lib/domain/contracts.ts`, `src/lib/domain/data/programs.ts` (incl. `PUBLISHED_PROGRAM_TOTALS_TIER_0`), `src/lib/domain/data/fee-rules.ts`.
 
 ## Owned paths (write)
 
 ```
 src/lib/domain/fees/**
 ```
-
 Also yours: `.jules/reports/T03.md`
 
 ## Read-only inputs
 
-`src/lib/domain/contracts.ts`, `src/lib/domain/data/**`, everything else in the repo.
+`src/lib/domain/contracts.ts`, `src/lib/domain/data/**`.
 
 ## Forbidden
 
-- Any path not listed under Owned paths. Hot files: `package.json`, `package-lock.json`, `.github/workflows/**`, `static/**`. Contracts: everything in AGENTS.md 5.3, including `contracts.ts` and `data/**`. Contract insufficient? File a request (5.7) and build with what exists.
-- New dependencies or version changes. Pre-installed set pinned in `.jules/deps.csv` (Vitest 5.0.3, TypeScript 6.0.3). Node standard library only.
-- Editing `src/lib/domain/grading/**` or `src/lib/domain/cgpa/**` (T02 owns them this wave — you run concurrently; touching them guarantees a collision).
+- Any path outside `src/lib/domain/fees/**`. No UI, no config edits, no new dependencies (AGENTS.md 5.5).
+- Editing `contracts.ts` or the data modules: file a request (5.7) instead; code against a local adapter type meanwhile.
+- Hardcoding any fee constant that lives in `data/fee-rules.ts` or `data/programs.ts`.
 
 ## Steps
 
-Design-heavy task: formulas, golden values and error messages are fixed; internal file layout is your judgment (deep module, barrel exports exactly the five contract functions).
+Design-heavy: the formulas below are binding (they come from the official pages and were validated against all 12 published totals on 2026-10-23). Structure the module as you see fit (barrel `index.ts`, colocated `<name>.test.ts`). Write each slice test-first, record first-red lines.
 
-Formulas that must hold (spec Implementation Decisions; constants from `FEE_RULES`):
+Binding formulas (money is exact Taka; halves occur at the 5,525 rate; never round mid-computation):
 
-- `calculateFees(input)`:
-  - tuitionGross = creditsPlanned × perCreditFee
-  - retakeWaiver = retakeCredits × perCreditFee × retakeWaiverFraction
-  - tierWaiver = (creditsPlanned − retakeCredits) × perCreditFee × (waiverTier / 100)
-  - tuitionNet = tuitionGross − retakeWaiver − tierWaiver
-  - termFee = trimesterFee or semesterFee by the Program's TermSystem; labFee = the Program's labFeePerTerm
-  - admissionFee = isFirstTerm ? FEE_RULES.admissionFee : 0; caution = isFirstTerm ? FEE_RULES.cautionMoney : 0
-  - totalDue = tuitionNet + termFee + labFee + admissionFee + caution; refundable = caution
-  - lines: one FeeLine per non-zero component, waivers as negative amounts, kinds from the contract union, labels in glossary words (e.g. `Tuition (15 credits × Tk 6,500)`, `RetakeWaiver (first retake, 50% of 3 credits)`, `WaiverTier 50% (estimate — conditions apply)`, `TermFee (Trimester)`, `LabFee`, `AdmissionFee (one-time)`, `CautionMoney (refundable)`).
-  - validation (RangeError, one-line messages): creditsPlanned ≥ 0 and a multiple of 0.5; 0 ≤ retakeCredits ≤ creditsPlanned and a multiple of 0.5; waiverTier ∈ {0, 25, 50}; programId known.
-- `calculatePaymentSchedule(programId, recurringDue, isFirstTerm)`:
-  - preRegistration = FEE_RULES.preRegistrationPayment; remaining = max(0, recurringDue − preRegistration)
-  - plan = installmentPlanTrimester or installmentPlanSemester by TermSystem; each Installment = remaining × percent/100 rounded to 2 decimals; the LAST Installment absorbs the rounding remainder so the sum equals remaining exactly; remaining = 0 → empty installments and note `PreRegistrationPayment covers this Term's dues.`
-  - labels: `Installment 1 (40%)` etc.; note for isFirstTerm: `The AdmissionFee (Tk 20,000) paid at admission counts as this Term's PreRegistrationPayment.` else `Pay Tk 20,000 before course registration; the rest in Installments.`
-- `calculateProgramTotal(programId, waiverTier)`: tuitionTotal = totalCredits × perCreditFee × (1 − tier/100); termFeesTotal = termsTotal × termFee; labFeesTotal = termsTotal × labFeePerTerm; admissionFee = FEE_RULES.admissionFee; total = the sum. Tier 0 must equal the official published totals.
-- `listPrograms()` returns the frozen table; `getProgram(id)` throws RangeError on an unknown id.
+- `tuitionGross = creditsPlanned × perCreditFee`
+- `retakeWaiver = retakeCredits × perCreditFee × 0.5` (first retake only — the flag semantics are the UI's job; the engine trusts the numbers)
+- `tierWaiver = (creditsPlanned − retakeCredits) × perCreditFee × waiverTier/100` (official rule: waivers never apply to Retake credits, TermFee, LabFee or one-time charges)
+- `tuitionNet = tuitionGross − retakeWaiver − tierWaiver`
+- `totalDue = tuitionNet + termFee + labFee + (isFirstTerm ? ADMISSION_FEE + CAUTION_MONEY : 0)` where `termFee` is the Program's TermSystem fee and `labFee` the Program's `labFeePerTerm`
+- `refundable = isFirstTerm ? CAUTION_MONEY : 0`
+- `PaymentSchedule`: `preRegistration = PRE_REGISTRATION_PAYMENT`; `remaining = max(0, tuitionNet + termFee + labFee − preRegistration)`; split by the TermSystem's fractions (Trimester 40/30/30; Semester 4×25%); each installment amount rounded to 2 decimals with the remainder added to the last installment so the parts sum exactly to `remaining`; `firstTermNote` non-null only when `isFirstTerm`, stating the AdmissionFee counts as that Term's PreRegistrationPayment (no double charge).
+- `calculateProgramTotal(programId, tier) = totalCredits × perCreditFee × (1 − tier/100) + termsTotal × (termFee + labFeePerTerm) + ADMISSION_FEE`. At tier 0 this equals `PUBLISHED_PROGRAM_TOTALS_TIER_0` exactly for all 12 Programs. CautionMoney is refundable and NOT part of program totals (matches the official table).
+- `FeeBreakdown.lines`: one FeeLine per non-zero component, in order tuition-gross, retake-waiver (negative amount), tier-waiver (negative amount, only when tier > 0), term-fee, lab-fee (only when > 0), admission-fee (FirstTerm, label says non-refundable), caution-money (FirstTerm, `refundable: true`); `isEstimate = waiverTier !== 0 || retakeWaiver > 0`.
 
-1. Slice 1 (U5) at S1 — red first: create `src/lib/domain/fees/` with barrel; test the plain trimester breakdown. Golden: BSCSE, 15 credits, no retake, not FirstTerm, tier 0 → tuitionGross 97500, termFee 6500, labFee 0, totalDue 104000, refundable 0, lines contain kinds tuition-gross and term-fee. Capture the first-red line. Done when green.
-2. Slice 2 (U6) at S1 — red first: FirstTerm adds AdmissionFee 20000 and CautionMoney 2000. Golden: BSCSE 15 credits FirstTerm tier 0 → totalDue 126000, refundable 2000, lines include admission-fee and caution-money. Done when green.
-3. Slice 3 (U5) at S1 — red first: TermSystem and LabFee variants. Goldens: B.Pharm 18 credits not-first tier 0 → termFee 9750, labFee 5000, totalDue 18×6500 + 14750 = 131750; BSBGE 12 credits → labFee 2000 line present; BA English 10 credits → tuitionGross 55250 (PerCreditFee 5525, produces halves: e.g. 5525 × 9.5 = 52487.5 — assert the exact decimal). Done when green.
-4. Slice 4 (U7) at S1 — red first: WaiverTier. Golden: BSCSE 15 credits not-first tier 50 → tierWaiver 48750 (negative line), tuitionNet 48750, totalDue 55250. Tier 25 → tierWaiver 24375. Done when green.
-5. Slice 5 (U2) at S1 — red first: RetakeWaiver and the tier interaction. Golden: BSCSE 15 credits with 3 retake credits, not-first, tier 0 → retakeWaiver 9750, totalDue 94250. Same with tier 50 → tierWaiver computed on 12 non-retake credits = 39000, retakeWaiver 9750, tuitionNet = 97500 − 9750 − 39000 = 48750, totalDue 55250. Done when green.
-6. Slice 6 (U8) at S1 — red first: PaymentSchedule. Goldens: trimester, recurringDue 104000 → preRegistration 20000, installments [33600, 25200, 25200]; semester (B.Pharm), recurringDue 50000 → 4 × 7500; recurringDue 15000 → remaining 0, installments [], the covers-note; rounding: recurringDue 100001 → remaining 80001 → [32000.40, 24000.30, 24000.30] with the last absorbing the remainder so the sum is exactly 80001. isFirstTerm note asserted. Done when green.
-7. Slice 7 (U5, U7) at S1 — red first: ProgramTotal goldens at tier 0 equal the official published totals: bscse 1014500; ba-english 777575; bpharm 1178000; bsbge 1032000; bsc-civil 1082750. At tier 50: bscse → tuitionTotal 458250, total 576250 (documented estimate — official published waiver totals differ; conditions apply). Done when green.
-8. Slice 8 (robustness) at S1 — red first: validation throws RangeError for creditsPlanned −1, 0.3; retakeCredits > creditsPlanned; waiverTier 30 (typed through a test helper, never by loosening types); unknown programId in getProgram. `listPrograms()` returns 12 entries and does not expose a mutable reference (mutating the result must not change a second call's output). Done when green.
-9. Refactor pass: barrel exports exactly `calculateFees`, `calculatePaymentSchedule`, `calculateProgramTotal`, `listPrograms`, `getProgram` typed with the contract function types; `npm run check` and `npx vitest run src/lib/domain/fees` exit 0.
-10. Self-review pass (skill `code-review`): Spec against U2/U5–U8 and the spec formulas; Standards against AGENTS.md and GLOSSARY.md (labels use glossary words: TermFee, LabFee, AdmissionFee, CautionMoney, PreRegistrationPayment, Installment). Fix hard findings; list leftovers.
+Slices:
+
+1. **Slice 1 (U5) at S1 — base breakdown.** BSCSE, 12 Credits, no retake, not FirstTerm, tier 0 → lines tuition-gross 78000 + term-fee 6500; totalDue 84500; refundable 0; isEstimate false. A 5,525-Program golden (BA-ENG, 9.5 Credits → tuition 52,487.5 — halves are exact).
+2. **Slice 2 (U6) at S1 — FirstTerm.** Same input with `isFirstTerm: true` → adds admission-fee 20000 and caution-money 2000 (`refundable: true`); totalDue 106500; refundable 2000.
+3. **Slice 3 (U2) at S1 — RetakeWaiver.** BSCSE 12 Credits with 3 retakeCredits → retake-waiver line −9750; totalDue 74750 + term fee math consistent with the formulas; isEstimate true.
+4. **Slice 4 (U7) at S1 — WaiverTier.** BSCSE 12 Credits, 3 retakeCredits, tier 25 → tierWaiver applies to the 9 non-retake Credits only (−14625); retake credits never discounted twice; isEstimate true. Tier 50 variant.
+5. **Slice 5 (U8) at S1 — PaymentSchedule.** (a) Trimester, remaining 64500 → 25800 / 19350 / 19350 (sum exact). (b) A halves case (BA-ENG) proving the remainder lands on the last installment and the sum equals `remaining` exactly. (c) Semester Program (BPHARM) → 4 equal fractions. (d) `remaining = 0` edge (tiny plan) → installments all 0, sum 0. (e) FirstTerm → note present and mentions the AdmissionFee; non-FirstTerm → note null.
+6. **Slice 6 (U5) at S1 — Programs API.** `listPrograms()` returns all 12 rows frozen-equal to the data table; `getProgram('BSC-CIVIL')` → 151.5 Credits; unknown id at runtime → `RangeError`.
+7. **Slice 7 (U5) at S1 — published-total goldens.** For every one of the 12 ProgramIds: `calculateProgramTotal(id, 0).total === PUBLISHED_PROGRAM_TOTALS_TIER_0[id]` (a `describe.each` over the table). This is the regression anchor for all fee math.
+8. **Slice 8 — validation.** `RangeError` (one-line message naming the rule) for: unknown ProgramId; `creditsPlanned` negative or not a multiple of 0.5; `retakeCredits` negative, not a multiple of 0.5, or greater than `creditsPlanned`; a `waiverTier` outside 0/25/50 at runtime.
+9. **Self-review pass** (skill `code-review`): Spec then Standards.
 
 ## Acceptance criteria
 
-Each line is checkable by a command.
-1. `npx vitest run src/lib/domain/fees` exits 0 with at least 15 passing tests covering every golden value above (S1).
-2. The five official tier-0 ProgramTotal goldens (1014500, 777575, 1178000, 1032000, 1082750) are asserted literally in tests — `npx vitest run src/lib/domain/fees -t "official"` exits 0.
-3. Stories U5–U8 verified by the corresponding test names at S1; U2 by the RetakeWaiver tests.
-4. `npm run verify` passes and `python .jules/tools/slop_guard.py --strict` reports no ERROR and no WARN.
-5. `git diff --name-only origin/integration/uiu-calculator...HEAD` shows only your owned paths plus `.jules/reports/T03.md`.
+1. `npx vitest run src/lib/domain/fees` exits 0; every slice has at least one named test; slice 7 asserts all 12 published totals.
+2. Stories U5–U8 verified by the goldens above at S1; U2's fee half by slice 3.
+3. `npm run verify` exits 0 and `python .jules/tools/slop_guard.py --strict` reports no ERROR.
+4. `git diff --name-only origin/main...HEAD` lists only `src/lib/domain/fees/**` and `.jules/reports/T03.md`.
 
 ## Decision defaults
 
-- Colocated tests: `src/lib/domain/fees/*.test.ts`.
-- Exact arithmetic: amounts may end in .5 (5525-rate); round only Installments, to 2 decimals, remainder into the last one. Never round intermediates.
-- Money strings never appear in the domain: return numbers; T04 formats with en-IN grouping.
-- FeeLine order: tuition-gross, retake-waiver, tier-waiver, term-fee, lab-fee, admission-fee, caution-money (zero components omitted).
-- Error messages: one line, name the rule (`waiverTier must be 0, 25 or 50`).
+- Amounts are JS numbers in exact Taka; these magnitudes (≤ ~1.2M, halves) are exactly representable — do not introduce a decimal library or cents-scaling (no new dependencies anyway).
+- FeeLine labels: glossary words, English, e.g. `Tuition (12.0 credits × Tk 6,500)`; waiver lines start with a minus sign in `amount` and read `Retake waiver (50%, first time)` / `Waiver (25%) — estimate`.
+- `fraction` on an Installment is the official ratio (0.4/0.3/0.3 or 0.25), `index` is 1-based.
+- Rounding of installment splits: round each to 2 decimals, compute the last as `remaining − sum(others)`.
+- Zero-amount optional lines (lab fee 0, tier 0) are omitted from `lines`; the numeric fields stay authoritative.
 
 ## Fallbacks
 
-- If the contract lacks a type you believe you need: the five functions and their result types are sufficient for every formula above — build with them; file a request if genuinely blocked, and continue with the rest.
-- If a golden value above conflicts with `FEE_RULES`/`PROGRAMS` data: the data files are authoritative (they are the frozen official table); recompute the expectation, and note the discrepancy in your report — do not edit data files.
-- If Vitest float comparison flakes on .5 amounts: use exact equality where amounts are halves (they are exact in binary), `toBeCloseTo(x, 10)` elsewhere.
+- If a data-module value seems wrong (e.g. a published total mismatch): do not edit data; write the test against the official value, file `.jules/requests/T03-data-<slug>.md` with the source URL, mark `[PARTIAL]` if it blocks a criterion.
+- If T01's contracts lack a field you need: local adapter type inside your paths + request; never edit `contracts.ts`.
 
 ## Hand-off
 
-Report at `.jules/reports/T03.md` (format in AGENTS.md section 10). Tell dependent tasks: barrel exports, FeeLine label wording (T04 displays labels verbatim), note strings for the PaymentSchedule, and the WaiverTier estimate caveat T04 must surface next to the selector.
+Report at `.jules/reports/T03.md`. Tell T04: exported names, FeeLine ordering and label style, when `isEstimate` is true and what the UI must say (WAIVER_ESTIMATE_NOTE), the `firstTermNote` text; tell T06: where the 12 published-total goldens live.
