@@ -1,6 +1,6 @@
 # Architecture Plan — UIU Calculator (CGPA & Tuition Fee Breakdown)
 
-Status: v1 | Updated after wave: W01
+Status: v1.2 | Updated after wave: W02 (review triaged; fix cycle 1: W03 data → W04 backend → W05 UI → W06 re-review)
 
 ## 1. Goal and non-goals
 
@@ -30,7 +30,7 @@ Status: v1 | Updated after wave: W01
 | Module | Responsibility | Lens | Depends on |
 |---|---|---|---|
 | `src/domain/` (`gpa.ts`, `fees.ts`, `format.ts`, `types.ts`) | Pure calculation logic. No React, no DOM, no storage imports. All money/GPA math lives here and nowhere else. | backend | data |
-| `src/data/` (`gradingScale.ts`, `programs.ts`, `policyNotes.ts`) | Seed datasets transcribed from official uiu.ac.bd pages, each with source URL + access date. Types enforced by `domain/types.ts`. | data | domain/types |
+| src/data/ (gradingScale.ts, programs.ts, policyNotes.ts — restored in W03; W01 inline-footer deviation REVERSED after review) | Seed datasets transcribed from official uiu.ac.bd pages, each with source URL + access date. Pin tests (src/data/__tests__/seed.test.ts) lock every value to the §4 tables. Types enforced by domain/types.ts. | data | domain/types |
 | `src/state/storage.ts` | Load/save/reset of course lists, student record, fee overrides in localStorage. Single choke point; versioned storage key. | data | domain/types |
 | `src/ui/` (App shell + `GpaCalculator`, `CgpaPlanner`, `FeeBreakdown`, `DataPage` components) | Rendering, input handling, tab navigation, result display. Calls domain functions; contains no formulas. | frontend-UI / UX | domain, data, state |
 | `src/domain/__tests__/` (`gpa.test.ts`, `fees.test.ts`, `format.test.ts`) | Unit tests for all pure logic, incl. the official-totals parity suite (§6 slice 3). | tests | domain, data |
@@ -167,7 +167,7 @@ Alive means: all six steps pass and the script exits 0. Any wave whose report sh
 |---|---|---|---|
 | 1 | **GPA calculator**: add/remove courses (name, credits 0.5–6 step 0.5, grade A…F); live GPA, earned credits, F warning; persists to localStorage; official grading scale shown inline. | AFK | `bun test src/domain/__tests__/gpa.test.ts` exits 0 (cases incl. all-F, empty list, 0.5-credit course, D earned-credit rule) |
 | 2 | **CGPA planner**: inputs completedCredits + currentCgpa + planned courses w/ expected grades → projected CGPA; target-CGPA mode → required term GPA or "unreachable". | AFK | `bun test src/domain/__tests__/gpa.test.ts` exits 0 (hand-computed projection cases, unreachable >4.00 case, zero-credit guard) |
-| 3 | **Fee breakdown**: program picker (all 17 seeded entries); enter term courses; toggles retake/waiver-ineligible; waiver % selector (0/25/50/custom); line-item breakdown + installments + degree-total panel (computed vs published side-by-side) + disclaimer. | AFK | `bun test src/domain/__tests__/fees.test.ts` exits 0 — **incl. parity: computed degree total === published full total for every seeded program**, retake-50% case, B.Pharm semester/lab case, installment-sums-exactly case |
+| 3 | **Fee breakdown**: program picker (all 19 seeded entries (12 UG + 7 PG)); enter term courses; toggles retake/waiver-ineligible; waiver % selector (0/25/50/custom); line-item breakdown + installments + degree-total panel (computed vs published side-by-side) + disclaimer. | AFK | `bun test src/domain/__tests__/fees.test.ts` exits 0 — **incl. parity: computed degree total === published full total for every seeded program**, retake-50% case, B.Pharm semester/lab case, installment-sums-exactly case |
 | 4 | **Data & overrides page**: view grading scale, programs, policy notes with source URLs + access date; edit per-credit/term/lab fee per program (override → localStorage, "custom fees active" banner + Reset); "Reset all data" clears everything. | AFK | `make smoke` exits 0 and `git grep -n "uiu.ac.bd" src/data` shows source URLs for all three datasets |
 
 Builder implements slices in order 1→4; the app must run and pass the heartbeat after each.
@@ -178,15 +178,18 @@ Builder implements slices in order 1→4; the app must run and pass the heartbea
 |---|---|---|---|---|---|
 | W00 | Scaffolder | docs | DONE | `.orchestrator/reports/W00-scaffolder-docs.md` | Commits this plan, AGENTS.md, report template |
 | W01 | Builder | full-stack prototype | DONE | `.orchestrator/reports/W01-builder-prototype.md` | Slices 1–4 + heartbeat + README |
-| W02 | Strict Reviewer | full-stack (read-only) | planned | `.orchestrator/reports/W02-reviewer-fullstack.md` | Attack checklist + math-parity re-verification |
-| W03+ | Fixers | per triage | — | — | One lens per task, ordered data→backend→UI→UX→tests |
+| W02 | Strict Reviewer | full-stack (read-only) | DONE 2026-10-23 (partially accepted; T-1 verdict REJECTED — self-referential audit; superseded by W03) | .orchestrator/reports/W02-reviewer-fullstack.md | Attack checklist + math-parity re-verification |
+| W03 | Fixer | data | DONE 2026-10-23 (final sha d69f9bcc16208438854c6976136f3030ff017510) | .orchestrator/reports/W03-fix-data.md | Seed-data corrections, policyNotes module, storage hardening, repo hygiene |
+| W04 | Fixer | backend | prompt issued | .orchestrator/reports/W04-fix-backend.md | F-002 NaN, F-009 clamps, F-010 toFixed audit |
+| W05 | Fixer | frontend-UI | planned | .orchestrator/reports/W05-fix-frontend-ui.md | F-004, F-006, F-007, F-008, B-1, policyNotes wiring |
+| W06 | Re-reviewer | read-only | planned | .orchestrator/reports/W06-rereview-fullstack.md | verify fixes, regressions, exit criteria |
 | W(n) | Re-reviewer | read-only | — | — | Verify fixed IDs, regression hunt, exit-criteria check |
 | W(last) | Release engineer | DevOps/release | — | — | Vercel static deploy config + CI + clean-clone proof |
 
 ## 8. Exit criteria (before Release wave)
 
 - [ ] `make smoke` passes from a clean clone (fresh `bun install`, no cache).
-- [ ] Official-totals parity suite green: computed no-waiver degree total equals published total for **all 17 seeded programs** (raw test output in a report).
+- [ ] Official-totals parity suite green: computed no-waiver degree total equals published total for **all 19 seeded programs (12 UG + 7 PG)** (raw test output in a report).
 - [ ] All 4 slices WORKING with evidence (Builder 5B + Re-reviewer verification).
 - [ ] Zero open Blocker or Critical findings.
 - [ ] Zero open Major findings, or each explicitly deferred with a reason accepted by the human.
@@ -199,7 +202,7 @@ Builder implements slices in order 1→4; the app must run and pass the heartbea
 **R1 — Published waiver-column anomaly (verified fact, not a bug in our math).** The official totals page's 50%/25% waiver columns do NOT equal the straightforward formula `(1−w)×credits×perCreditFee + terms×termFee + admission` for most UG programs (e.g. BBA 50%: formula 504,250 vs published 514,000; deltas of +1.5 or +3 credits' worth of fee depending on program; PG MSCSE matches, MSECO does not). The per-term formula IS officially documented ("Number of Credits Taken × Per Credit Fee + Trimester Fee", scholarship "Tuition fee only"). **Decision: compute per the documented formula; display published totals verbatim beside computed ones with a "may differ — see official policy" note. Do not reverse-engineer the delta.** A reviewer may investigate and report, but no wave may silently "fix" numbers to match.
 - R2 — Fees vary by admission batch/year and "UIU reserves the right to change policies/fees without prior notice". Mitigation: seed data carries access date (2026-10-23) + source URLs; slice 4 fee overrides let any student match their own batch rates.
 - R3 — Rounding policy (half-up, 2dp) may differ ±0.01 from the university's own system. Mitigation: disclaimer; tests pin our behaviour.
-- R4 — Grading scale transcription error would poison everything. Mitigation: parity tests + reviewer re-checks `src/data` against the source URLs character-by-character.
+- R4 — Grading scale transcription error would poison everything. Mitigation: parity tests + reviewer re-checks `src/data` against the source URLs character-by-character. **R4 MATERIALIZED in W01**: W02 T-1 "Seeded" values contradicted §4 (BBA 124/904,000; BSCSE 140/1,008,000; BSDS 137/988,500; BSSEDS absent) while parity passed — seeded publishedTotals were self-consistent with wrong credit counts. Corrected in W03; pin tests now lock values. W02's T-1 audit itself was invalid (Expected column mirrored seeds).
 - R5 — Vercel deploy is static-only; if any future feature needs a server, Bun-runtime Functions exist as an upgrade path (verified available), out of scope now.
 
 **Open questions for the human (answer with plan approval):**

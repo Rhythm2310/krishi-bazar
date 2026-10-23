@@ -4,13 +4,14 @@ import type { Program } from '../domain/types';
 // Source: https://www.uiu.ac.bd/admission/tuition-fees-payment-policies/tuition-fees-waiver/
 export const PROGRAMS: Program[] = [
   // UG
-  { code: 'BBA', totalCredits: 124, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 904000, waiver25: 702500, waiver50: 514000 } },
-  { code: 'BBA in AIS', totalCredits: 124, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 904000, waiver25: 702500, waiver50: 514000 } },
-  { code: 'BSECO', totalCredits: 122, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 891000, waiver25: 692750, waiver50: 507500 } },
-  { code: 'BSCSE', totalCredits: 140, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 1008000, waiver25: 780500, waiver50: 566000 } },
-  { code: 'BSDS', totalCredits: 137, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 988500, waiver25: 765875, waiver50: 556250 } },
-  { code: 'BSEEE', totalCredits: 140, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 1008000, waiver25: 780500, waiver50: 566000 } },
-  { code: 'BSCE (Civil)', totalCredits: 151.5, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 1082750, waiver25: 846312.50, waiver50: 609875 } },
+  { code: 'BBA', totalCredits: 125, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 910500, waiver25: 712250, waiver50: 514000 } },
+  { code: 'BBA-AIS', totalCredits: 125, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 910500, waiver25: 712250, waiver50: 514000 } },
+  { code: 'BSECO', totalCredits: 122, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 891000, waiver25: 697625, waiver50: 504250 } },
+  { code: 'BSSEDS', totalCredits: 123, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 897500, waiver25: 707375, waiver50: 517250 } },
+  { code: 'BSCSE', totalCredits: 141, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 1014500, waiver25: 795125, waiver50: 575750 } },
+  { code: 'BSDS', totalCredits: 138, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 995000, waiver25: 780500, waiver50: 566000 } },
+  { code: 'BSEEE', totalCredits: 140, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 1008000, waiver25: 790250, waiver50: 572500 } },
+  { code: 'BSCE', totalCredits: 151.5, terms: 12, termType: 'tri', perCreditFee: 6500, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 1082750, waiver25: 846312.5, waiver50: 609875 } },
   { code: 'BPHARM', totalCredits: 160, terms: 8, termType: 'sem', perCreditFee: 6500, termFee: 9750, labFeePerTerm: 5000, publishedTotals: { full: 1178000, waiver25: 924500, waiver50: 671000 } },
   { code: 'BAENG', totalCredits: 123, terms: 12, termType: 'tri', perCreditFee: 5525, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 777575, waiver25: 611825, waiver50: 446075 } },
   { code: 'BSSMSJ', totalCredits: 130, terms: 12, termType: 'tri', perCreditFee: 5525, termFee: 6500, labFeePerTerm: null, publishedTotals: { full: 816250, waiver25: 640831.3, waiver50: 465412.5 } },

@@ -11,7 +11,7 @@ export const GRADING_SCALE: Grade[] = [
   { letter: 'C+', point: 2.33, minMark: 70, maxMark: 73, assessment: 'Average' },
   { letter: 'C', point: 2.00, minMark: 66, maxMark: 69, assessment: 'Below Average' },
   { letter: 'C-', point: 1.67, minMark: 62, maxMark: 65, assessment: 'Poor' },
-  { letter: 'D+', point: 1.33, minMark: 58, maxMark: 61, assessment: 'Very Poor' },
+  { letter: 'D+', point: 1.33, minMark: 58, maxMark: 61, assessment: 'Very poor' },
   { letter: 'D', point: 1.00, minMark: 55, maxMark: 57, assessment: 'Pass' },
   { letter: 'F', point: 0.00, minMark: 0, maxMark: 54, assessment: 'Fail' }
 ];

@@ -6,46 +6,100 @@ const KEY_CGPA_RECORD = `${PREFIX}cgpa-record`;
 const KEY_CGPA_PLANNED = `${PREFIX}cgpa-planned`;
 const KEY_OVERRIDES = `${PREFIX}overrides`;
 
+function getStorage() {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return window.localStorage;
+  }
+  // Safe fallback if window or window.localStorage is undefined
+  return {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    keys: () => []
+  };
+}
+
 export function loadGpaCourses(): CourseEntry[] {
-  const data = localStorage.getItem(KEY_GPA_COURSES);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = getStorage().getItem(KEY_GPA_COURSES);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    return [];
+  }
 }
 
 export function saveGpaCourses(courses: CourseEntry[]): void {
-  localStorage.setItem(KEY_GPA_COURSES, JSON.stringify(courses));
+  try {
+    getStorage().setItem(KEY_GPA_COURSES, JSON.stringify(courses));
+  } catch (error) {
+    // Swallow the error
+  }
 }
 
 export function loadStudentRecord(): StudentRecord {
-  const data = localStorage.getItem(KEY_CGPA_RECORD);
-  return data ? JSON.parse(data) : { completedCredits: 0, currentCgpa: 0 };
+  try {
+    const data = getStorage().getItem(KEY_CGPA_RECORD);
+    return data ? JSON.parse(data) : { completedCredits: 0, currentCgpa: 0 };
+  } catch (error) {
+    return { completedCredits: 0, currentCgpa: 0 };
+  }
 }
 
 export function saveStudentRecord(record: StudentRecord): void {
-  localStorage.setItem(KEY_CGPA_RECORD, JSON.stringify(record));
+  try {
+    getStorage().setItem(KEY_CGPA_RECORD, JSON.stringify(record));
+  } catch (error) {
+    // Swallow the error
+  }
 }
 
 export function loadCgpaPlannedCourses(): CourseEntry[] {
-  const data = localStorage.getItem(KEY_CGPA_PLANNED);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = getStorage().getItem(KEY_CGPA_PLANNED);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    return [];
+  }
 }
 
 export function saveCgpaPlannedCourses(courses: CourseEntry[]): void {
-  localStorage.setItem(KEY_CGPA_PLANNED, JSON.stringify(courses));
+  try {
+    getStorage().setItem(KEY_CGPA_PLANNED, JSON.stringify(courses));
+  } catch (error) {
+    // Swallow the error
+  }
 }
 
 export function loadFeeOverrides(): Record<string, Partial<Program>> {
-  const data = localStorage.getItem(KEY_OVERRIDES);
-  return data ? JSON.parse(data) : {};
+  try {
+    const data = getStorage().getItem(KEY_OVERRIDES);
+    return data ? JSON.parse(data) : {};
+  } catch (error) {
+    return {};
+  }
 }
 
 export function saveFeeOverrides(overrides: Record<string, Partial<Program>>): void {
-  localStorage.setItem(KEY_OVERRIDES, JSON.stringify(overrides));
+  try {
+    getStorage().setItem(KEY_OVERRIDES, JSON.stringify(overrides));
+  } catch (error) {
+    // Swallow the error
+  }
 }
 
 export function clearAllData(): void {
-  Object.keys(localStorage).forEach(key => {
-    if (key.startsWith(PREFIX)) {
-      localStorage.removeItem(key);
-    }
-  });
+  try {
+    const storage = getStorage();
+    // Assuming Object.keys works with localStorage.
+    // In actual browser, Object.keys(localStorage) returns keys.
+    // mockStorage may need to implement this correctly if tested.
+    const keys = Object.keys(typeof window !== 'undefined' && window.localStorage ? window.localStorage : {});
+    keys.forEach(key => {
+      if (key.startsWith(PREFIX)) {
+        storage.removeItem(key);
+      }
+    });
+  } catch (error) {
+    // Swallow the error
+  }
 }
