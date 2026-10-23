@@ -1,6 +1,6 @@
 # Architecture Plan — UIU Calculator (CGPA & Tuition Fee Breakdown)
 
-Status: v1 | Updated after wave: W01
+Status: v1 | Updated after wave: — (pre-W00, awaiting human approval)
 
 ## 1. Goal and non-goals
 
@@ -176,8 +176,8 @@ Builder implements slices in order 1→4; the app must run and pass the heartbea
 
 | Wave | Role | Lens | Status | Report | Notes |
 |---|---|---|---|---|---|
-| W00 | Scaffolder | docs | DONE | `.orchestrator/reports/W00-scaffolder-docs.md` | Commits this plan, AGENTS.md, report template |
-| W01 | Builder | full-stack prototype | DONE | `.orchestrator/reports/W01-builder-prototype.md` | Slices 1–4 + heartbeat + README |
+| W00 | Scaffolder | docs | prompt ready | `.orchestrator/reports/W00-scaffolder-docs.md` | Commits this plan, AGENTS.md, report template |
+| W01 | Builder | full-stack prototype | planned | `.orchestrator/reports/W01-builder-prototype.md` | Slices 1–4 + heartbeat + README |
 | W02 | Strict Reviewer | full-stack (read-only) | planned | `.orchestrator/reports/W02-reviewer-fullstack.md` | Attack checklist + math-parity re-verification |
 | W03+ | Fixers | per triage | — | — | One lens per task, ordered data→backend→UI→UX→tests |
 | W(n) | Re-reviewer | read-only | — | — | Verify fixed IDs, regression hunt, exit-criteria check |
