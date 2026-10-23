@@ -1,4 +1,5 @@
 import type { CourseEntry, FeeLine, Program } from './types';
+import { sanitizeCredits, sanitizeWaiverPct } from './sanitize';
 
 export function computeTermFee(program: Program, courses: CourseEntry[], waiverPct: number): { lines: FeeLine[]; tuitionGross: number; waiverDiscount: number; total: number; installments: number[] } {
   let tuitionGross = 0;
@@ -6,9 +7,10 @@ export function computeTermFee(program: Program, courses: CourseEntry[], waiverP
   const lines: FeeLine[] = [];
 
   for (const course of courses) {
-    if (course.credits <= 0) continue;
+    const credits = sanitizeCredits(course.credits);
+    if (credits === 0) continue;
     const discountFactor = (course.isRetake && course.retakeFirstTime) ? 0.5 : 1;
-    const courseTuition = course.credits * program.perCreditFee * discountFactor;
+    const courseTuition = credits * program.perCreditFee * discountFactor;
 
     tuitionGross += courseTuition;
     if (!course.waiverIneligible) {
@@ -17,9 +19,10 @@ export function computeTermFee(program: Program, courses: CourseEntry[], waiverP
   }
 
   lines.push({ label: 'Tuition Fee', amount: tuitionGross, isSub: false });
-  const waiverDiscount = waiverPct > 0 ? (waiverPct / 100) * waiverEligibleTuition : 0;
+  const sWaiverPct = sanitizeWaiverPct(waiverPct);
+  const waiverDiscount = sWaiverPct > 0 ? (sWaiverPct / 100) * waiverEligibleTuition : 0;
   if (waiverDiscount > 0) {
-    lines.push({ label: `Waiver (${waiverPct}%)`, amount: waiverDiscount, isSub: true });
+    lines.push({ label: `Waiver (${sWaiverPct}%)`, amount: waiverDiscount, isSub: true });
   }
 
   lines.push({ label: `${program.termType === 'tri' ? 'Trimester' : 'Semester'} Fee`, amount: program.termFee, isSub: false });
