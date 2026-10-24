@@ -15,9 +15,11 @@ describe("parseInputs", () => {
       expect(parseCreditInput("3")).toEqual({ value: 3.0, error: null });
     });
     test("off-step error", () => {
-      expect(parseCreditInput("0.3")).toEqual({ value: 0.3, error: "Credits must be in 0.5 steps." });
+      expect(parseCreditInput("1.3")).toEqual({ value: 1.3, error: "Credits must be in 0.5 steps." });
+      expect(parseCreditInput("5.7")).toEqual({ value: 5.7, error: "Credits must be in 0.5 steps." });
     });
     test("range error", () => {
+      expect(parseCreditInput("0.3")).toEqual({ value: 0.3, error: "Credits must be between 0.5 and 6." });
       expect(parseCreditInput("7")).toEqual({ value: 7, error: "Credits must be between 0.5 and 6." });
       expect(parseCreditInput("-1")).toEqual({ value: -1, error: "Credits must be between 0.5 and 6." });
     });
