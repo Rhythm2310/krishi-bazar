@@ -10,16 +10,20 @@ interface CardProps {
 
 export function Card({ children, className = '', padding = 'md', style }: CardProps) {
   return (
-    <div className={`ui-card ui-card--p-${padding} ${className}`} style={style}>
+    <div className={`ds-card ui-card--p-${padding} ${className}`} style={style}>
       {children}
     </div>
   );
 }
 
 export function CardHeader({ children, className = '' }: { children: React.ReactNode, className?: string }) {
-  return <div className={`ui-card__header ${className}`}>{children}</div>;
+  return <div className={`ds-card-header ${className}`}>{children}</div>;
 }
 
 export function CardContent({ children, className = '' }: { children: React.ReactNode, className?: string }) {
-  return <div className={`ui-card__content ${className}`}>{children}</div>;
+  return <div className={`ds-card-body ${className}`}>{children}</div>;
+}
+
+export function CardFooter({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+  return <div className={`ds-card-footer ${className}`}>{children}</div>;
 }

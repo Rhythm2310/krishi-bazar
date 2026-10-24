@@ -8,7 +8,6 @@ import { Card, CardHeader, CardContent } from './components/Card';
 import { Button } from './components/Button';
 import { Input } from './components/Input';
 import { Select } from './components/Select';
-import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from './components/Table';
 
 export default function GpaCalculator() {
   const [courses, setCourses] = useState<CourseEntry[]>([]);
@@ -59,133 +58,112 @@ export default function GpaCalculator() {
   const { gpa, earnedCredits, totalCredits, hasF } = computeGpa(courses);
 
   return (
-    <div className="flex-col gap-6" style={{ display: 'flex' }}>
-      <Card padding="none">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <h2 style={{ margin: 0 }}>Semester GPA Calculator</h2>
-            <Button variant="primary" size="sm" onClick={addCourse}>Add Course</Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {courses.length === 0 ? (
-            <div className="flex-col items-center justify-center" style={{ padding: 'var(--space-12) 0', textAlign: 'center' }}>
-              <div style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-                </svg>
-              </div>
-              <p className="text-muted mb-4">No courses added yet.</p>
-              <Button variant="secondary" onClick={addCourse}>Add your first course</Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeader>Course Name</TableHeader>
-                  <TableHeader>Credits</TableHeader>
-                  <TableHeader>Grade</TableHeader>
-                  <TableHeader align="center">Action</TableHeader>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {courses.map(course => {
-                  const rawCredits = rawInputStates[`${course.id}-credits`] ?? course.credits.toString();
-                  const { error } = parseCreditInput(rawCredits);
-                  return (
-                    <TableRow key={course.id}>
-                      <TableCell>
-                        <Input
-                          type="text"
-                          value={course.name}
-                          onChange={e => updateCourse(course.id, 'name', e.target.value)}
-                          aria-label={`Course name for ${course.name}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          type="text"
-                          inputMode="decimal"
-                          value={rawCredits}
-                          onChange={e => handleCreditChange(course.id, e.target.value)}
-                          onBlur={() => handleCreditBlur(course.id, course.credits)}
-                          error={error || undefined}
-                          aria-label={`Credits for ${course.name}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={course.grade || ''}
-                          onChange={e => updateCourse(course.id, 'grade', e.target.value as GradeLetter)}
-                          aria-label={`Grade for ${course.name}`}
-                        >
-                          <option value="" disabled>Select</option>
-                          {GRADING_SCALE.map(g => <option key={g.letter} value={g.letter}>{g.letter} ({g.point.toFixed(2)})</option>)}
-                        </Select>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeCourse(course.id)}
-                          aria-label={`Remove ${course.name}`}
-                          style={{ color: 'var(--accent-danger)' }}
-                        >
-                          Remove
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6)' }}>
-        <Card>
-          <h3 className="mb-4">Results</h3>
-          <div className="flex-col gap-2">
-            <div className="flex justify-between items-center" style={{ paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-subtle)' }}>
-              <span className="text-muted">GPA</span>
-              <strong style={{ fontSize: '1.5rem', color: 'var(--accent-primary)' }}>{gpa.toFixed(2)}</strong>
-            </div>
-            <div className="flex justify-between items-center" style={{ padding: 'var(--space-2) 0', borderBottom: '1px solid var(--border-subtle)' }}>
-              <span className="text-muted">Total Credits</span>
-              <strong>{totalCredits}</strong>
-            </div>
-            <div className="flex justify-between items-center" style={{ paddingTop: 'var(--space-2)' }}>
-              <span className="text-muted">Earned Credits</span>
-              <strong>{earnedCredits}</strong>
-            </div>
-          </div>
-          {hasF && (
-            <div style={{
-              marginTop: 'var(--space-4)',
-              padding: 'var(--space-3)',
-              backgroundColor: 'var(--accent-warning-bg)',
-              color: 'var(--accent-warning-text)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.875rem'
-            }}>
-              <strong>Warning:</strong> You have one or more failing grades (F). These count towards GPA but not earned credits.
-            </div>
-          )}
+    <div className="flex-col gap-4">
+      {/* Results Overview - Pinned to top for quick visibility */}
+      <div className="flex gap-4 mb-2 animate-in" style={{ animationDelay: '100ms' }}>
+        <Card className="w-full flex-col justify-center items-center py-4" style={{ backgroundColor: 'var(--bg-surface-hover)' }}>
+          <span className="text-muted text-xs font-bold uppercase tracking-widest mb-1">Semester GPA</span>
+          <span className="font-data" style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--accent-primary)', lineHeight: 1 }}>
+            {gpa.toFixed(2)}
+          </span>
         </Card>
-
-        <Card>
-          <h4 className="mb-4">Grading Scale</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', fontSize: '0.875rem' }}>
-            {GRADING_SCALE.map(g => (
-              <div key={g.letter} className="flex justify-between" style={{ padding: 'var(--space-1) 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                <span style={{ fontWeight: 500 }}>{g.letter} ({g.point.toFixed(2)})</span>
-                <span className="text-muted">{g.minMark}-{g.maxMark}</span>
-              </div>
-            ))}
+        <Card className="w-full flex-col justify-center items-center py-4">
+          <span className="text-muted text-xs font-bold uppercase tracking-widest mb-1">Credits</span>
+          <div className="flex items-baseline gap-1 font-data">
+            <span style={{ fontSize: '1.5rem', fontWeight: 600 }}>{earnedCredits}</span>
+            <span className="text-muted">/ {totalCredits}</span>
           </div>
         </Card>
       </div>
+
+      {hasF && (
+        <div className="mb-2 animate-in" style={{ animationDelay: '150ms' }}>
+          <div style={{
+            backgroundColor: 'var(--bg-danger)',
+            color: 'var(--text-danger)',
+            border: '1px solid #fca5a5',
+            padding: 'var(--space-2) var(--space-3)',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.875rem'
+          }}>
+            <strong className="font-bold">Warning:</strong> Failing grades (F) count towards GPA but not earned credits.
+          </div>
+        </div>
+      )}
+
+      <Card padding="none" className="animate-in" style={{ animationDelay: '200ms' }}>
+        <CardHeader className="flex justify-between items-center bg-transparent border-b-0 pb-0">
+          <h2 style={{ margin: 0 }}>Courses</h2>
+          <Button variant="ghost" onClick={addCourse} style={{ color: 'var(--accent-primary)', padding: '4px 8px' }}>+ Add</Button>
+        </CardHeader>
+        <CardContent>
+          {courses.length === 0 ? (
+            <div className="flex-col items-center justify-center py-8 text-center">
+              <p className="text-muted mb-4">No courses added yet.</p>
+              <Button variant="primary" onClick={addCourse}>Add your first course</Button>
+            </div>
+          ) : (
+            <div className="flex-col gap-2">
+              {courses.map(course => {
+                const rawCredits = rawInputStates[`${course.id}-credits`] ?? course.credits.toString();
+                const { error } = parseCreditInput(rawCredits);
+                return (
+                  <div key={course.id} className="flex gap-2 items-start bg-page p-2 rounded-md border border-subtle" style={{ backgroundColor: 'var(--bg-page)' }}>
+                    <div className="flex-col gap-1 w-full" style={{ flex: 2 }}>
+                      <label className="sr-only">Course Name</label>
+                      <Input
+                        type="text"
+                        value={course.name}
+                        onChange={e => updateCourse(course.id, 'name', e.target.value)}
+                        placeholder="Course Name"
+                        aria-label={`Course name for ${course.name}`}
+                        style={{ border: 'none', backgroundColor: 'transparent', padding: '4px 0', fontSize: '1rem', fontWeight: 500, boxShadow: 'none' }}
+                      />
+                    </div>
+                    <div className="flex-col gap-1 w-full" style={{ flex: 1 }}>
+                      <label className="text-xs text-muted font-bold uppercase tracking-wider pl-1">Cr</label>
+                      <Input
+                        type="text"
+                        inputMode="decimal"
+                        value={rawCredits}
+                        onChange={e => handleCreditChange(course.id, e.target.value)}
+                        onBlur={() => handleCreditBlur(course.id, course.credits)}
+                        error={error || undefined}
+                        aria-label={`Credits for ${course.name}`}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </div>
+                    <div className="flex-col gap-1 w-full" style={{ flex: 1.5 }}>
+                      <label className="text-xs text-muted font-bold uppercase tracking-wider pl-1">Grade</label>
+                      <Select
+                        value={course.grade || ''}
+                        onChange={e => updateCourse(course.id, 'grade', e.target.value as GradeLetter)}
+                        aria-label={`Grade for ${course.name}`}
+                      >
+                        <option value="" disabled>-</option>
+                        {GRADING_SCALE.map(g => <option key={g.letter} value={g.letter}>{g.letter}</option>)}
+                      </Select>
+                    </div>
+                    <div className="flex items-end justify-center pt-5">
+                      <button
+                        onClick={() => removeCourse(course.id)}
+                        aria-label={`Remove ${course.name}`}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+                        title="Remove"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

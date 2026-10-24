@@ -1,5 +1,5 @@
 import React, { useId } from 'react';
-import './Input.css'; /* Shares input styling */
+import './Input.css';
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -13,22 +13,21 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const selectId = id || generatedId;
 
     return (
-      <div className={`ui-input-group ${fullWidth ? 'ui-input-group--full' : ''} ${className}`}>
+      <div className={`ds-input-group ${fullWidth ? 'w-full' : ''} ${className}`}>
         {label && (
-          <label htmlFor={selectId} className="ui-input-label">
+          <label htmlFor={selectId} className="ds-label">
             {label}
           </label>
         )}
         <select
           ref={ref}
           id={selectId}
-          className={`ui-input ${error ? 'ui-input--error' : ''}`}
-          style={{ appearance: 'auto' }} /* Let native select arrow show */
+          className={`ds-select ${error ? 'ds-input-error' : ''} font-data`}
           {...props}
         >
           {children}
         </select>
-        {error && <span className="ui-input-error-text">{error}</span>}
+        {error && <span className="ds-error-text">{error}</span>}
       </div>
     );
   }
