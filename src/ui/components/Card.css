@@ -1,24 +1,35 @@
-.ui-card {
+.ds-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  transition: box-shadow var(--transition-fast);
 }
 
-.ui-card--p-none { padding: 0; }
-.ui-card--p-sm { padding: var(--space-4); }
-.ui-card--p-md { padding: var(--space-6); }
-.ui-card--p-lg { padding: var(--space-8); }
+.ds-card:hover {
+  box-shadow: var(--shadow-md);
+}
 
-/* When using composite parts, typically base card has no padding, and parts have padding */
-.ui-card__header {
-  padding: var(--space-4) var(--space-6);
+.ds-card-header {
+  padding: var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
-  background-color: var(--bg-subtle);
-  font-weight: 500;
+  background-color: var(--bg-surface-hover);
 }
 
-.ui-card__content {
-  padding: var(--space-6);
+.ds-card-header h2, .ds-card-header h3 {
+  margin: 0;
+}
+
+.ds-card-body {
+  padding: var(--space-4);
+}
+
+.ds-card-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-page);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }

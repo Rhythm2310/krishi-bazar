@@ -8,7 +8,6 @@ import { Card, CardHeader, CardContent } from './components/Card';
 import { Button } from './components/Button';
 import { Input } from './components/Input';
 import { Select } from './components/Select';
-import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from './components/Table';
 
 export default function CgpaPlanner() {
   const [completedCredits, setCompletedCredits] = useState<number>(0);
@@ -90,156 +89,156 @@ export default function CgpaPlanner() {
     : null;
 
   return (
-    <div className="flex-col gap-6" style={{ display: 'flex' }}>
-      <Card>
-        <h2 className="mb-4">Current Standing</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-          <Input
-            label="Completed Credits"
-            type="text"
-            inputMode="decimal"
-            value={rawCompleted}
-            onChange={e => handleCompletedChange(e.target.value)}
-            onBlur={() => setRawCompleted(completedCredits.toString())}
-            error={parseCompletedCreditsInput(rawCompleted).error || undefined}
-          />
-          <Input
-            label="Current CGPA"
-            type="text"
-            inputMode="decimal"
-            value={rawCgpa}
-            onChange={e => handleCgpaChange(e.target.value)}
-            onBlur={() => setRawCgpa(currentCgpa.toString())}
-            error={parseCgpaInput(rawCgpa).error || undefined}
-          />
+    <div className="flex-col gap-4">
+      {/* Current Standing Section */}
+      <Card className="animate-in" style={{ animationDelay: '100ms', backgroundColor: 'var(--bg-surface)' }}>
+        <h2 className="text-xs font-bold text-muted uppercase tracking-widest mb-3">Current Standing</h2>
+        <div className="flex gap-4">
+          <div className="w-full">
+            <Input
+              label="Credits"
+              type="text"
+              inputMode="decimal"
+              value={rawCompleted}
+              onChange={e => handleCompletedChange(e.target.value)}
+              onBlur={() => setRawCompleted(completedCredits.toString())}
+              error={parseCompletedCreditsInput(rawCompleted).error || undefined}
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+          <div className="w-full">
+            <Input
+              label="CGPA"
+              type="text"
+              inputMode="decimal"
+              value={rawCgpa}
+              onChange={e => handleCgpaChange(e.target.value)}
+              onBlur={() => setRawCgpa(currentCgpa.toString())}
+              error={parseCgpaInput(rawCgpa).error || undefined}
+              style={{ textAlign: 'center' }}
+            />
+          </div>
         </div>
       </Card>
 
-      <Card padding="none">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <h3 style={{ margin: 0 }}>Planned Courses</h3>
-            <Button variant="primary" size="sm" onClick={addCourse}>Add Course</Button>
+      {/* Target Planning Section */}
+      <Card className="animate-in" style={{ animationDelay: '150ms', backgroundColor: 'var(--bg-surface-hover)' }}>
+        <div className="flex items-center justify-between mb-3">
+           <h2 className="text-xs font-bold text-muted uppercase tracking-widest m-0">Projected CGPA</h2>
+           {reqTarget && reqTarget.required !== null && (
+              <span className="text-xs font-medium text-muted">
+                Need <strong style={{ color: 'var(--text-main)' }}>{reqTarget.required.toFixed(2)}</strong> this term
+              </span>
+           )}
+        </div>
+        <div className="flex gap-4 items-center">
+          <div className="flex-col w-full">
+             <span className="font-data" style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--accent-primary)', lineHeight: 1 }}>
+                {newCgpa.toFixed(2)}
+             </span>
+             <span className="text-xs text-muted mt-1 font-data">Total Credits: {totalCredits}</span>
           </div>
+
+          <div className="w-full flex-col gap-2">
+            <Input
+              label="Goal CGPA (Optional)"
+              type="text"
+              inputMode="decimal"
+              value={rawTargetCgpa}
+              onChange={e => setRawTargetCgpa(e.target.value)}
+              onBlur={() => {
+                if (rawTargetCgpa.trim() !== '') {
+                   const parsed = parseCgpaInput(rawTargetCgpa);
+                   setRawTargetCgpa(parsed.error ? '' : (parsed.value !== null && parsed.value !== undefined ? parsed.value.toString() : ''));
+                }
+              }}
+              error={rawTargetCgpa.trim() !== '' ? (parseCgpaInput(rawTargetCgpa).error || undefined) : undefined}
+              placeholder="e.g. 3.50"
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+        </div>
+        {reqTarget && reqTarget.required === null && (
+          <div className="mt-3 text-xs text-danger font-medium p-2 rounded bg-danger" style={{ backgroundColor: 'var(--bg-danger)' }}>
+            Unreachable: Requires term GPA &gt; 4.00 or no planned credits.
+          </div>
+        )}
+      </Card>
+
+      {/* Planned Courses Section */}
+      <Card padding="none" className="animate-in" style={{ animationDelay: '200ms' }}>
+        <CardHeader className="flex justify-between items-center bg-transparent border-b-0 pb-0">
+          <h2 style={{ margin: 0 }} className="text-sm font-bold text-main">Planned Courses</h2>
+          <Button variant="ghost" onClick={addCourse} style={{ color: 'var(--accent-primary)', padding: '4px 8px' }}>+ Add</Button>
         </CardHeader>
         <CardContent>
           {planned.length === 0 ? (
-            <div className="flex-col items-center justify-center" style={{ padding: 'var(--space-8) 0', textAlign: 'center' }}>
+            <div className="flex-col items-center justify-center py-8 text-center">
               <p className="text-muted mb-4">Add courses to project your upcoming CGPA.</p>
-              <Button variant="secondary" onClick={addCourse}>Plan your first course</Button>
+              <Button variant="primary" onClick={addCourse}>Plan your first course</Button>
             </div>
           ) : (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeader>Course Name</TableHeader>
-                  <TableHeader>Credits</TableHeader>
-                  <TableHeader>Expected Grade</TableHeader>
-                  <TableHeader align="center">Action</TableHeader>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {planned.map(course => {
-                  const rawCredits = rawPlannedCredits[`${course.id}-credits`] ?? course.credits.toString();
-                  const { error } = parseCreditInput(rawCredits);
-                  return (
-                    <TableRow key={course.id}>
-                      <TableCell>
-                        <Input
-                          type="text"
-                          value={course.name}
-                          onChange={e => updateCourse(course.id, 'name', e.target.value)}
-                          aria-label={`Course name for ${course.name}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          type="text"
-                          inputMode="decimal"
-                          value={rawCredits}
-                          onChange={e => handleCreditChange(course.id, e.target.value)}
-                          onBlur={() => setRawPlannedCredits({ ...rawPlannedCredits, [`${course.id}-credits`]: course.credits.toString() })}
-                          error={error || undefined}
-                          aria-label={`Credits for ${course.name}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={course.grade || ''}
-                          onChange={e => updateCourse(course.id, 'grade', e.target.value as GradeLetter)}
-                          aria-label={`Grade for ${course.name}`}
-                        >
-                          <option value="" disabled>Select</option>
-                          {GRADING_SCALE.map(g => <option key={g.letter} value={g.letter}>{g.letter}</option>)}
-                        </Select>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeCourse(course.id)}
-                          aria-label={`Remove ${course.name}`}
-                          style={{ color: 'var(--accent-danger)' }}
-                        >
-                          Remove
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <div className="flex-col gap-2">
+              {planned.map(course => {
+                const rawCredits = rawPlannedCredits[`${course.id}-credits`] ?? course.credits.toString();
+                const { error } = parseCreditInput(rawCredits);
+                return (
+                  <div key={course.id} className="flex gap-2 items-start bg-page p-2 rounded-md border border-subtle" style={{ backgroundColor: 'var(--bg-page)' }}>
+                    <div className="flex-col gap-1 w-full" style={{ flex: 2 }}>
+                      <label className="sr-only">Course Name</label>
+                      <Input
+                        type="text"
+                        value={course.name}
+                        onChange={e => updateCourse(course.id, 'name', e.target.value)}
+                        placeholder="Course Name"
+                        aria-label={`Course name for ${course.name}`}
+                        style={{ border: 'none', backgroundColor: 'transparent', padding: '4px 0', fontSize: '1rem', fontWeight: 500, boxShadow: 'none' }}
+                      />
+                    </div>
+                    <div className="flex-col gap-1 w-full" style={{ flex: 1 }}>
+                      <label className="text-xs text-muted font-bold uppercase tracking-wider pl-1">Cr</label>
+                      <Input
+                        type="text"
+                        inputMode="decimal"
+                        value={rawCredits}
+                        onChange={e => handleCreditChange(course.id, e.target.value)}
+                        onBlur={() => setRawPlannedCredits({ ...rawPlannedCredits, [`${course.id}-credits`]: course.credits.toString() })}
+                        error={error || undefined}
+                        aria-label={`Credits for ${course.name}`}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </div>
+                    <div className="flex-col gap-1 w-full" style={{ flex: 1.5 }}>
+                      <label className="text-xs text-muted font-bold uppercase tracking-wider pl-1">Expected</label>
+                      <Select
+                        value={course.grade || ''}
+                        onChange={e => updateCourse(course.id, 'grade', e.target.value as GradeLetter)}
+                        aria-label={`Expected Grade for ${course.name}`}
+                      >
+                        <option value="" disabled>-</option>
+                        {GRADING_SCALE.map(g => <option key={g.letter} value={g.letter}>{g.letter}</option>)}
+                      </Select>
+                    </div>
+                    <div className="flex items-end justify-center pt-5">
+                      <button
+                        onClick={() => removeCourse(course.id)}
+                        aria-label={`Remove ${course.name}`}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+                        title="Remove"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6)' }}>
-        <Card>
-          <h3 className="mb-4">Projected CGPA</h3>
-          <div className="flex-col gap-2">
-            <div className="flex justify-between items-center" style={{ paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-subtle)' }}>
-              <span className="text-muted">New CGPA</span>
-              <strong style={{ fontSize: '1.5rem', color: 'var(--accent-primary)' }}>{newCgpa.toFixed(2)}</strong>
-            </div>
-            <div className="flex justify-between items-center" style={{ paddingTop: 'var(--space-2)' }}>
-              <span className="text-muted">Total Credits</span>
-              <strong>{totalCredits}</strong>
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <h3 className="mb-4">Goal Setting</h3>
-          <Input
-            label="Target CGPA"
-            type="text"
-            inputMode="decimal"
-            value={rawTargetCgpa}
-            onChange={e => setRawTargetCgpa(e.target.value)}
-            onBlur={() => {
-              if (rawTargetCgpa.trim() !== '') {
-                 const parsed = parseCgpaInput(rawTargetCgpa);
-                 setRawTargetCgpa(parsed.error ? '' : (parsed.value !== null && parsed.value !== undefined ? parsed.value.toString() : ''));
-              }
-            }}
-            error={rawTargetCgpa.trim() !== '' ? (parseCgpaInput(rawTargetCgpa).error || undefined) : undefined}
-          />
-          {reqTarget && (
-            <div style={{
-              marginTop: 'var(--space-4)',
-              padding: 'var(--space-3)',
-              backgroundColor: reqTarget.required === null ? 'var(--accent-danger)' : 'var(--bg-subtle)',
-              color: reqTarget.required === null ? 'white' : 'var(--text-main)',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.875rem'
-            }}>
-              {reqTarget.required === null
-                ? <span><strong>Unreachable:</strong> Requires term GPA &gt; 4.00 or no planned credits.</span>
-                : <span><strong>Required term GPA:</strong> <span style={{ fontSize: '1.125rem', fontWeight: 600 }}>{reqTarget.required.toFixed(2)}</span></span>}
-            </div>
-          )}
-        </Card>
-      </div>
     </div>
   );
 }

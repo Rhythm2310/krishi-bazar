@@ -16,10 +16,10 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = [
-    'ui-button',
-    `ui-button--${variant}`,
-    `ui-button--${size}`,
-    fullWidth ? 'ui-button--full-width' : '',
+    'ds-btn',
+    `ds-btn-${variant}`,
+    `ds-btn-${size}`,
+    fullWidth ? 'w-full' : '',
     className
   ].filter(Boolean).join(' ');
 

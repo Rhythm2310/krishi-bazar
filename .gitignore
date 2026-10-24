@@ -24,3 +24,11 @@ dist-ssr
 *.sw?
 .orchestrator/scratch/
 .impeccable
+# .impeccable
+.impeccable/*
+!.impeccable/config.json
+!.impeccable/design.json
+!.impeccable/surfaces/
+!.impeccable/surfaces/*.md
+!.impeccable/critique/
+!.impeccable/critique/*.md

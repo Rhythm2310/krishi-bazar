@@ -13,19 +13,19 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || generatedId;
 
     return (
-      <div className={`ui-input-group ${fullWidth ? 'ui-input-group--full' : ''} ${className}`}>
+      <div className={`ds-input-group ${fullWidth ? 'w-full' : ''} ${className}`}>
         {label && (
-          <label htmlFor={inputId} className="ui-input-label">
+          <label htmlFor={inputId} className="ds-label">
             {label}
           </label>
         )}
         <input
           ref={ref}
           id={inputId}
-          className={`ui-input ${error ? 'ui-input--error' : ''}`}
+          className={`ds-input ${error ? 'ds-input-error' : ''} font-data`}
           {...props}
         />
-        {error && <span className="ui-input-error-text">{error}</span>}
+        {error && <span className="ds-error-text">{error}</span>}
       </div>
     );
   }

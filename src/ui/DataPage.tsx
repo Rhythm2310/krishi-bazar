@@ -23,7 +23,7 @@ export default function DataPage() {
     }
 
     const base = PROGRAMS.find(p => p.code === selectedProgramCode)!;
-    if (value === base[field]) {
+    if (value === base[field] || isNaN(value as number)) {
       delete newOverrides[selectedProgramCode][field];
       if (Object.keys(newOverrides[selectedProgramCode]).length === 0) {
         delete newOverrides[selectedProgramCode];
@@ -49,89 +49,82 @@ export default function DataPage() {
   };
 
   return (
-    <div className="flex-col gap-6" style={{ display: 'flex' }}>
+    <div className="flex-col gap-6 animate-in">
       <Card>
-        <h2 className="mb-2">Data & Settings</h2>
-        <p className="text-muted mb-6">Manage application data, custom fees for your specific batch, and review data sources.</p>
+        <h2 className="text-xs font-bold text-muted uppercase tracking-widest mb-2">Fee Overrides</h2>
+        <p className="text-sm text-muted mb-4">Edit fees to match your specific admission batch. Changes are saved locally.</p>
 
-        <h3 className="mb-4">Fee Overrides</h3>
-        <p className="text-sm text-muted mb-4">Edit fees to match your specific admission batch. Changes are saved automatically to your device.</p>
-
-        <div style={{ maxWidth: '400px' }} className="flex-col gap-4">
+        <div className="flex-col gap-4">
           <Select
-            label="Select Program to Override"
+            label="Select Program"
             value={selectedProgramCode}
             onChange={e => setSelectedProgramCode(e.target.value)}
           >
             {PROGRAMS.map(p => <option key={p.code} value={p.code}>{p.code}</option>)}
           </Select>
 
-          <Input
-            label="Per Credit Fee (BDT)"
-            type="number"
-            value={currentOverrides.perCreditFee ?? currentProgramBase.perCreditFee}
-            onChange={e => handleOverrideChange('perCreditFee', parseInt(e.target.value))}
-          />
-          <Input
-            label="Term Fee (BDT)"
-            type="number"
-            value={currentOverrides.termFee ?? currentProgramBase.termFee}
-            onChange={e => handleOverrideChange('termFee', parseInt(e.target.value))}
-          />
+          <div className="flex gap-4">
+            <Input
+              label="Per Credit (BDT)"
+              type="text"
+              inputMode="decimal"
+              value={currentOverrides.perCreditFee ?? currentProgramBase.perCreditFee}
+              onChange={e => handleOverrideChange('perCreditFee', parseInt(e.target.value))}
+              style={{ textAlign: 'center' }}
+            />
+            <Input
+              label="Term Fee (BDT)"
+              type="text"
+              inputMode="decimal"
+              value={currentOverrides.termFee ?? currentProgramBase.termFee}
+              onChange={e => handleOverrideChange('termFee', parseInt(e.target.value))}
+              style={{ textAlign: 'center' }}
+            />
+          </div>
           <Input
             label="Lab Fee Per Term (BDT)"
-            type="number"
+            type="text"
+            inputMode="decimal"
             value={currentOverrides.labFeePerTerm ?? currentProgramBase.labFeePerTerm ?? 0}
             onChange={e => handleOverrideChange('labFeePerTerm', parseInt(e.target.value) || null)}
+            style={{ textAlign: 'center' }}
           />
         </div>
       </Card>
 
       <Card>
-        <div className="flex justify-between items-center flex-wrap gap-4">
+        <div className="flex-col gap-3">
           <div>
-            <h3 className="mb-2">Reset Application</h3>
-            <p className="text-sm text-muted mb-0">Clear all local storage including courses, GPA records, and custom fee overrides. This action cannot be undone.</p>
+            <h2 className="text-xs font-bold text-danger uppercase tracking-widest mb-1">Reset Application</h2>
+            <p className="text-sm text-muted m-0">Clear all local storage including courses, GPA records, and custom fee overrides.</p>
           </div>
-          <Button variant="danger" onClick={handleReset}>Reset All Data</Button>
+          <Button variant="danger" onClick={handleReset} fullWidth>Reset All Data</Button>
         </div>
       </Card>
 
-      <Card>
-        <h3 className="mb-4">Scholarship & Waiver Policy</h3>
-        <ul style={{ listStyleType: 'disc', paddingLeft: 'var(--space-4)', margin: '0 0 var(--space-4) 0' }}>
+      <Card style={{ backgroundColor: 'var(--bg-surface)' }}>
+        <h2 className="text-xs font-bold text-muted uppercase tracking-widest mb-3">Policy Summary</h2>
+        <ul className="flex-col gap-3" style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.875rem' }}>
           {POLICY_NOTES.map((note, idx) => (
-            <li key={idx} className="mb-2" style={{ fontSize: '0.9375rem' }}>
-              <strong style={{ color: 'var(--text-main)' }}>{note.title}:</strong> <span className="text-muted">{note.body}</span>
+            <li key={idx}>
+              <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '2px' }}>{note.title}</strong>
+              <span className="text-muted leading-tight">{note.body}</span>
             </li>
           ))}
         </ul>
-        <div className="text-sm text-muted" style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 'var(--space-4)' }}>
-          Sources: {DATA_SOURCES.map((src, idx) => (
+      </Card>
+
+      <div className="text-center">
+         <span className="text-xs text-muted">
+           For actual info, always refer to the <a href="https://uiu.ac.bd" target="_blank" rel="noopener noreferrer">official UIU website</a>.
+           Sources: {DATA_SOURCES.map((src, idx) => (
             <span key={idx}>
               <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}>{src.label}</a>
               {idx < DATA_SOURCES.length - 1 ? ', ' : ''}
             </span>
           ))}
-        </div>
-      </Card>
-
-      <Card style={{ backgroundColor: 'var(--bg-subtle)' }}>
-        <h3 className="mb-2">Seed Data Overview</h3>
-        <p className="text-sm text-muted mb-4">Base data sourced from <code>uiu.ac.bd</code> on 2026-10-23.</p>
-        <div style={{
-          maxHeight: '300px',
-          overflowY: 'auto',
-          backgroundColor: 'var(--bg-surface)',
-          padding: 'var(--space-4)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-subtle)',
-          fontSize: '0.75rem',
-          fontFamily: 'monospace'
-        }}>
-          <pre style={{ margin: 0 }}>{JSON.stringify(PROGRAMS, null, 2)}</pre>
-        </div>
-      </Card>
+         </span>
+      </div>
     </div>
   );
 }

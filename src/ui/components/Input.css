@@ -1,50 +1,56 @@
-.ui-input-group {
+.ds-input-group {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
 }
 
-.ui-input-group--full {
+.ds-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ds-input, .ds-select {
   width: 100%;
-}
-
-.ui-input-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-main);
-}
-
-.ui-input {
   padding: var(--space-2) var(--space-3);
-  font-size: 1rem;
-  font-family: inherit;
+  font-size: 0.875rem;
+  font-family: var(--font-ui);
   color: var(--text-main);
   background-color: var(--bg-surface);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all var(--transition-fast);
+  appearance: none;
 }
 
-.ui-input::placeholder {
-  color: var(--text-muted);
-}
-
-.ui-input:focus {
+.ds-input:focus, .ds-select:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); /* orange shadow */
+  box-shadow: 0 0 0 2px var(--accent-subtle);
 }
 
-.ui-input--error {
-  border-color: var(--accent-danger);
+.ds-input:disabled, .ds-select:disabled {
+  background-color: var(--bg-page);
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 
-.ui-input--error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+.ds-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2352525b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  padding-right: 2rem;
 }
 
-.ui-input-error-text {
+.ds-input-error {
+  border-color: var(--border-focus);
+}
+
+.ds-error-text {
   font-size: 0.75rem;
-  color: var(--accent-danger);
+  color: var(--text-danger);
   margin-top: 2px;
 }
