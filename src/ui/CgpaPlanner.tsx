@@ -4,6 +4,11 @@ import { computeCgpa, requiredTermGpa } from '../domain/gpa';
 import { loadStudentRecord, saveStudentRecord, loadCgpaPlannedCourses, saveCgpaPlannedCourses } from '../state/storage';
 import { GRADING_SCALE } from '../data/gradingScale';
 import { parseCompletedCreditsInput, parseCgpaInput, parseCreditInput } from './parseInputs';
+import { Card, CardHeader, CardContent } from './components/Card';
+import { Button } from './components/Button';
+import { Input } from './components/Input';
+import { Select } from './components/Select';
+import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from './components/Table';
 
 export default function CgpaPlanner() {
   const [completedCredits, setCompletedCredits] = useState<number>(0);
@@ -85,83 +90,155 @@ export default function CgpaPlanner() {
     : null;
 
   return (
-    <div className="card">
-      <h2>CGPA Planner</h2>
-      <div className="flex mt-1">
-        <label>
-          Completed Credits:
-          <input type="text" inputMode="decimal" value={rawCompleted} onChange={e => handleCompletedChange(e.target.value)} onBlur={() => setRawCompleted(completedCredits.toString())} />
-          {parseCompletedCreditsInput(rawCompleted).error && <div className="error" style={{ fontSize: '0.8em', marginTop: '4px' }}>{parseCompletedCreditsInput(rawCompleted).error}</div>}
-        </label>
-        <label>
-          Current CGPA:
-          <input type="text" inputMode="decimal" value={rawCgpa} onChange={e => handleCgpaChange(e.target.value)} onBlur={() => setRawCgpa(currentCgpa.toString())} />
-          {parseCgpaInput(rawCgpa).error && <div className="error" style={{ fontSize: '0.8em', marginTop: '4px' }}>{parseCgpaInput(rawCgpa).error}</div>}
-        </label>
-      </div>
-      <h3 className="mt-2">Planned Courses</h3>
-
-      {planned.length === 0 ? (
-        <div className="mt-2" style={{ padding: '20px', background: 'var(--bg)', borderRadius: '4px', textAlign: 'center' }}>
-          <p>Add the courses you plan to take this term to project your CGPA.</p>
+    <div className="flex-col gap-6" style={{ display: 'flex' }}>
+      <Card>
+        <h2 className="mb-4">Current Standing</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+          <Input
+            label="Completed Credits"
+            type="text"
+            inputMode="decimal"
+            value={rawCompleted}
+            onChange={e => handleCompletedChange(e.target.value)}
+            onBlur={() => setRawCompleted(completedCredits.toString())}
+            error={parseCompletedCreditsInput(rawCompleted).error || undefined}
+          />
+          <Input
+            label="Current CGPA"
+            type="text"
+            inputMode="decimal"
+            value={rawCgpa}
+            onChange={e => handleCgpaChange(e.target.value)}
+            onBlur={() => setRawCgpa(currentCgpa.toString())}
+            error={parseCgpaInput(rawCgpa).error || undefined}
+          />
         </div>
-      ) : (
-        <table>
-          <thead>
-            <tr><th>Course Name</th><th>Credits</th><th>Expected Grade</th><th>Action</th></tr>
-          </thead>
-          <tbody>
-            {planned.map(course => {
-              const rawCredits = rawPlannedCredits[`${course.id}-credits`] ?? course.credits.toString();
-              const { error } = parseCreditInput(rawCredits);
-              return (
-                <tr key={course.id}>
-                  <td><input type="text" value={course.name} onChange={e => updateCourse(course.id, 'name', e.target.value)} /></td>
-                  <td>
-                    <input type="text" inputMode="decimal" value={rawCredits} onChange={e => handleCreditChange(course.id, e.target.value)} onBlur={() => setRawPlannedCredits({ ...rawPlannedCredits, [`${course.id}-credits`]: course.credits.toString() })} />
-                    {error && <div className="error" style={{ fontSize: '0.8em', marginTop: '4px' }}>{error}</div>}
-                  </td>
-                  <td>
-                    <select value={course.grade || ''} onChange={e => updateCourse(course.id, 'grade', e.target.value as GradeLetter)}>
-                      <option value="" disabled>Select</option>
-                      {GRADING_SCALE.map(g => <option key={g.letter} value={g.letter}>{g.letter}</option>)}
-                    </select>
-                  </td>
-                  <td><button className="danger" onClick={() => removeCourse(course.id)}>Remove</button></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+      </Card>
 
-      <button className="mt-1" onClick={addCourse}>Add Planned Course</button>
+      <Card padding="none">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <h3 style={{ margin: 0 }}>Planned Courses</h3>
+            <Button variant="primary" size="sm" onClick={addCourse}>Add Course</Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {planned.length === 0 ? (
+            <div className="flex-col items-center justify-center" style={{ padding: 'var(--space-8) 0', textAlign: 'center' }}>
+              <p className="text-muted mb-4">Add courses to project your upcoming CGPA.</p>
+              <Button variant="secondary" onClick={addCourse}>Plan your first course</Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeader>Course Name</TableHeader>
+                  <TableHeader>Credits</TableHeader>
+                  <TableHeader>Expected Grade</TableHeader>
+                  <TableHeader align="center">Action</TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {planned.map(course => {
+                  const rawCredits = rawPlannedCredits[`${course.id}-credits`] ?? course.credits.toString();
+                  const { error } = parseCreditInput(rawCredits);
+                  return (
+                    <TableRow key={course.id}>
+                      <TableCell>
+                        <Input
+                          type="text"
+                          value={course.name}
+                          onChange={e => updateCourse(course.id, 'name', e.target.value)}
+                          aria-label={`Course name for ${course.name}`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="text"
+                          inputMode="decimal"
+                          value={rawCredits}
+                          onChange={e => handleCreditChange(course.id, e.target.value)}
+                          onBlur={() => setRawPlannedCredits({ ...rawPlannedCredits, [`${course.id}-credits`]: course.credits.toString() })}
+                          error={error || undefined}
+                          aria-label={`Credits for ${course.name}`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={course.grade || ''}
+                          onChange={e => updateCourse(course.id, 'grade', e.target.value as GradeLetter)}
+                          aria-label={`Grade for ${course.name}`}
+                        >
+                          <option value="" disabled>Select</option>
+                          {GRADING_SCALE.map(g => <option key={g.letter} value={g.letter}>{g.letter}</option>)}
+                        </Select>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeCourse(course.id)}
+                          aria-label={`Remove ${course.name}`}
+                          style={{ color: 'var(--accent-danger)' }}
+                        >
+                          Remove
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
-      <div className="mt-2">
-        <h3>Projected CGPA</h3>
-        <p><strong>New CGPA:</strong> {newCgpa.toFixed(2)}</p>
-        <p><strong>Total Credits:</strong> {totalCredits}</p>
-      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6)' }}>
+        <Card>
+          <h3 className="mb-4">Projected CGPA</h3>
+          <div className="flex-col gap-2">
+            <div className="flex justify-between items-center" style={{ paddingBottom: 'var(--space-2)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <span className="text-muted">New CGPA</span>
+              <strong style={{ fontSize: '1.5rem', color: 'var(--accent-primary)' }}>{newCgpa.toFixed(2)}</strong>
+            </div>
+            <div className="flex justify-between items-center" style={{ paddingTop: 'var(--space-2)' }}>
+              <span className="text-muted">Total Credits</span>
+              <strong>{totalCredits}</strong>
+            </div>
+          </div>
+        </Card>
 
-      <div className="mt-2" style={{borderTop: '1px solid #dee2e6', paddingTop: '10px'}}>
-        <h3>Target CGPA</h3>
-        <label>
-          Target:
-          <input type="text" inputMode="decimal" value={rawTargetCgpa} onChange={e => setRawTargetCgpa(e.target.value)} onBlur={() => {
-            if (rawTargetCgpa.trim() !== '') {
-               const parsed = parseCgpaInput(rawTargetCgpa);
-               setRawTargetCgpa(parsed.error ? '' : parsed.value.toString());
-            }
-          }} />
-          {rawTargetCgpa.trim() !== '' && parseCgpaInput(rawTargetCgpa).error && <div className="error" style={{ fontSize: '0.8em', marginTop: '4px' }}>{parseCgpaInput(rawTargetCgpa).error}</div>}
-        </label>
-        {reqTarget && (
-          <p className="mt-1">
-            {reqTarget.required === null
-              ? <span className="error">Unreachable target (requires GPA &gt; 4.00 or no planned credits)</span>
-              : <strong>Required term GPA: {reqTarget.required.toFixed(2)}</strong>}
-          </p>
-        )}
+        <Card>
+          <h3 className="mb-4">Goal Setting</h3>
+          <Input
+            label="Target CGPA"
+            type="text"
+            inputMode="decimal"
+            value={rawTargetCgpa}
+            onChange={e => setRawTargetCgpa(e.target.value)}
+            onBlur={() => {
+              if (rawTargetCgpa.trim() !== '') {
+                 const parsed = parseCgpaInput(rawTargetCgpa);
+                 setRawTargetCgpa(parsed.error ? '' : (parsed.value !== null && parsed.value !== undefined ? parsed.value.toString() : ''));
+              }
+            }}
+            error={rawTargetCgpa.trim() !== '' ? (parseCgpaInput(rawTargetCgpa).error || undefined) : undefined}
+          />
+          {reqTarget && (
+            <div style={{
+              marginTop: 'var(--space-4)',
+              padding: 'var(--space-3)',
+              backgroundColor: reqTarget.required === null ? 'var(--accent-danger)' : 'var(--bg-subtle)',
+              color: reqTarget.required === null ? 'white' : 'var(--text-main)',
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '0.875rem'
+            }}>
+              {reqTarget.required === null
+                ? <span><strong>Unreachable:</strong> Requires term GPA &gt; 4.00 or no planned credits.</span>
+                : <span><strong>Required term GPA:</strong> <span style={{ fontSize: '1.125rem', fontWeight: 600 }}>{reqTarget.required.toFixed(2)}</span></span>}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );

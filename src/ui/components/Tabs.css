@@ -1,0 +1,41 @@
+.ui-tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-6);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.ui-tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.ui-tab {
+  background: transparent;
+  border: none;
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  font-family: inherit;
+}
+
+.ui-tab:hover {
+  color: var(--text-main);
+}
+
+.ui-tab--active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+.ui-tab:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
