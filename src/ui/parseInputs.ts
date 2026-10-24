@@ -3,8 +3,8 @@ export function parseCreditInput(raw: string): { value: number; error: string | 
   if (trimmed === '') return { value: 0, error: null };
   const val = Number(trimmed);
   if (!Number.isFinite(val)) return { value: 0, error: 'Enter credits as a number.' };
-  if (Math.abs(val % 0.5) > 1e-9) return { value: val, error: 'Credits must be in 0.5 steps.' };
   if (val < 0.5 || val > 6) return { value: val, error: 'Credits must be between 0.5 and 6.' };
+  if (Math.abs(val % 0.5) > 1e-9) return { value: val, error: 'Credits must be in 0.5 steps.' };
   return { value: val, error: null };
 }
 
